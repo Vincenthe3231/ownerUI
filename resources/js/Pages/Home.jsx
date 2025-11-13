@@ -1,8 +1,8 @@
 import BottomNavigation from '@/Components/BottomNavigation';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
-import { useEffect, useMemo, useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
 const heroSlides = [
     {
@@ -31,6 +31,49 @@ const heroSlides = [
         title: 'Certified Craftsmanship',
         description:
             'Work with vetted contractors and materials curated for durability and style.',
+    },
+];
+
+const actionButtons = [
+    {
+        id: 1,
+        label: 'View Quotations',
+        icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+        ),
+        href: '/quotations',
+    },
+    {
+        id: 2,
+        label: 'Track Progress',
+        icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+        ),
+        href: '#',
+    },
+    {
+        id: 3,
+        label: 'View Invoices',
+        icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+        ),
+        href: '#',
+    },
+    {
+        id: 4,
+        label: 'Contact Chat',
+        icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+        ),
+        href: '#',
     },
 ];
 
@@ -82,7 +125,7 @@ const currentProjects = [
     },
     {
         id: 3,
-        name: 'Vivo Exclusive Apartment',
+        name: 'Vivo Executive Apartment',
         image:
             'https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=600&q=80',
         location: 'Bukit Jalil',
@@ -98,6 +141,7 @@ const currentProjects = [
 
 export default function Home() {
     const [activeSlide, setActiveSlide] = useState(0);
+    const carouselRef = useRef(null);
 
     const slideCount = heroSlides.length;
 
@@ -108,14 +152,16 @@ export default function Home() {
 
         return () => window.clearInterval(timer);
     }, [slideCount]);
-
-    const carouselStyle = useMemo(
-        () => ({
-            width: `${slideCount * 100}%`,
-            transform: `translateX(-${activeSlide * (100 / slideCount)}%)`,
-        }),
-        [activeSlide, slideCount],
-    );
+    // Scroll carousel when activeSlide changes
+    useEffect(() => {
+        if (carouselRef.current) {
+            const slideWidth = carouselRef.current.clientWidth;
+            carouselRef.current.scrollTo({
+                left: activeSlide * slideWidth,
+                behavior: 'smooth',
+            });
+        }
+    }, [activeSlide]);
 
     return (
         <AuthenticatedLayout header={null} hideNavigation={true}>
@@ -125,34 +171,32 @@ export default function Home() {
                     {/* Logo */}
                     <div className="flex items-center mb-6">
                         <div className="flex items-center">
-                            <div className="w-8 h-8 bg-red-600 rounded-md flex items-center justify-center mr-2">
+                            <div className="w-8 h-8 rounded-md flex items-center justify-center mr-2" style={{ backgroundColor: '#d81e43' }}>
                                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
                             </div>
                             <div>
-                                <div className="text-red-600 font-bold text-lg">RenoXpert</div>
-                                <div className="text-gray-400 text-xs">empowered by bolive</div>
+                                <div className="font-bold text-lg" style={{ color: '#d81e43' }}>RenoXpert</div>
+                                <div className="text-gray-400 text-xs">powered by</div>
                             </div>
                         </div>
                     </div>
 
                     <section className="space-y-3">
-                        {/* Scrollable container */}
+                        {/* Scrollable container with hybrid morphism */}
                         <div
-                            ref={(el) => {
-                                if (el) {
-                                    el.addEventListener('scroll', () => {
-                                        const slideWidth = el.clientWidth;
-                                        const newIndex = Math.round(el.scrollLeft / slideWidth);
-                                        setActiveSlide(newIndex);
-                                    });
-                                }
+                            ref={carouselRef}
+                            onScroll={(e) => {
+                                const slideWidth = e.target.clientWidth;
+                                const newIndex = Math.round(e.target.scrollLeft / slideWidth);
+                                setActiveSlide(newIndex);
                             }}
-                            className="overflow-x-auto rounded-[32px] bg-white shadow-lg shadow-rose-100 scrollbar-hide"
+                            className="overflow-x-auto rounded-3xl bg-white scrollbar-hide"
                             style={{
                                 scrollSnapType: 'x mandatory',
                                 WebkitOverflowScrolling: 'touch',
+                                boxShadow: '0 10px 25px -5px rgba(216, 30, 67, 0.2), 0 4px 6px -2px rgba(216, 30, 67, 0.1)',
                             }}
                         >
                             <div className="flex">
@@ -168,7 +212,7 @@ export default function Home() {
                                         <img
                                             src={slide.image}
                                             alt={slide.title}
-                                            className="h-48 w-full object-cover"
+                                            className="h-48 w-full object-cover rounded-t-3xl"
                                             loading="lazy"
                                         />
                                         <div className="space-y-1 px-5 pb-5 pt-4">
@@ -193,60 +237,50 @@ export default function Home() {
                                     type="button"
                                     aria-label={`Go to slide ${index + 1}`}
                                     onClick={() => {
-                                        const container = document.querySelector('.scrollbar-hide');
-                                        if (container) {
-                                            container.scrollTo({
-                                                left: index * container.clientWidth,
+                                        if (carouselRef.current) {
+                                            carouselRef.current.scrollTo({
+                                                left: index * carouselRef.current.clientWidth,
                                                 behavior: 'smooth',
                                             });
                                         }
                                         setActiveSlide(index);
                                     }}
                                     className={`h-2.5 rounded-full transition-all ${activeSlide === index
-                                        ? 'w-6 bg-rose-500'
-                                        : 'w-2 bg-rose-200'
+                                        ? 'w-6'
+                                        : 'w-2 bg-gray-300'
                                         }`}
+                                    style={{
+                                        backgroundColor: activeSlide === index ? '#d81e43' : undefined,
+                                    }}
                                 />
                             ))}
                         </div>
                     </section>
 
-                    <section className="rounded-[32px] bg-white/95 p-6 shadow-lg shadow-slate-100">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-100 to-rose-50 shadow-inner">
-                                <span className="text-4xl">💡</span>
-                            </div>
-                            <div className="space-y-2">
-                                <p className="text-sm font-semibold uppercase tracking-[0.4rem] text-rose-400">
-                                    Did You Know?
-                                </p>
-                                <h3 className="text-xl font-semibold text-slate-900">
-                                    Renting whole units misses up to 2× income.
-                                </h3>
-                            </div>
-                        </div>
-                        <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                            Transform your unit into a co-living space that is fully managed,
-                            fully tenanted and optimised for peace of mind.
-                        </p>
-                        <button
-                            type="button"
-                            className="mt-5 w-full rounded-2xl bg-rose-500 py-3 text-sm font-semibold uppercase tracking-wider text-white shadow hover:bg-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500"
-                        >
-                            Get free ROI report
-                        </button>
+                    {/* Action Buttons Grid */}
+                    <section className="grid grid-cols-2 gap-4">
+                        {actionButtons.map((button) => (
+                            <Link
+                                key={button.id}
+                                href={button.href}
+                                className="flex flex-col items-center justify-center gap-2 p-6 rounded-3xl bg-white transition-transform hover:scale-105"
+                                style={{
+                                    boxShadow: '0 8px 20px -5px rgba(245, 131, 61, 0.25), 0 4px 6px -2px rgba(245, 131, 61, 0.1)',
+                                }}
+                            >
+                                <div className="text-orange-500">{button.icon}</div>
+                                <span className="text-sm font-semibold text-slate-900 text-center">
+                                    {button.label}
+                                </span>
+                            </Link>
+                        ))}
                     </section>
 
-                    <ProjectSection
-                        title="Upcoming Project"
-                        projects={upcomingProjects}
-                        accent="from-rose-100 to-rose-50"
-                    />
 
                     <ProjectSection
-                        title="Current Project"
-                        projects={currentProjects}
-                        accent="from-sky-100 to-sky-50"
+                        title="Other Projects"
+                        projects={upcomingProjects}
+                        accent="from-rose-100 to-rose-50"
                     />
                 </div>
 
@@ -259,36 +293,23 @@ export default function Home() {
 function ProjectSection({ title, projects, accent }) {
     return (
         <section className="space-y-4">
-            <div className="flex items-center gap-3">
-                <div
-                    className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${accent} shadow-inner`}
-                    aria-hidden="true"
-                >
-                    <svg
-                        className="h-6 w-6 text-rose-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M4 7.5L12 3L20 7.5V16.5L12 21L4 16.5V7.5Z"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                        <path
-                            d="M12 21V13"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </div>
-                <h2 className="text-xl font-semibold uppercase tracking-[0.25rem] text-slate-900">
+            <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">
                     {title}
                 </h2>
+                <svg
+                    className="h-5 w-5 text-slate-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                    />
+                </svg>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 {projects.map((project, index) => {
@@ -297,10 +318,11 @@ function ProjectSection({ title, projects, accent }) {
                     return (
                         <article
                             key={project.id}
-                            className={`group flex flex-col overflow-hidden rounded-[20px] bg-white shadow-md shadow-slate-100 transition hover:-translate-y-0.5 hover:shadow-lg ${isLast && isOddCount
-                                    ? 'col-span-2 mx-auto'
-                                    : ''
+                            className={`group flex flex-col overflow-hidden rounded-3xl bg-white transition-transform hover:scale-105 ${isLast && isOddCount ? 'col-span-2 mx-auto' : ''
                                 }`}
+                            style={{
+                                boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
+                            }}
                         >
                             <img
                                 src={project.image}
