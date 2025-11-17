@@ -84,11 +84,11 @@ export default function BottomNavigation({ active = 'quotations' }) {
                     />
                 </svg>
 
-                <div className="relative flex items-center justify-around px-2 pt-2">
+                <div className="relative grid grid-cols-5 items-center px-2 pt-2">
                     {/* Home */}
                     <Link
                         href={homeHref}
-                        className={`flex flex-col items-center gap-1 px-4 py-2 text-sm transition-all duration-300 ${
+                        className={`flex flex-col items-center justify-center gap-1 py-2 text-sm transition-all duration-300 ${
                             active === 'home'
                                 ? 'relative -mt-8'
                                 : 'text-gray-500 hover:text-gray-700'
@@ -145,7 +145,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                     {/* Chat */}
                     <Link
                         href="#"
-                        className={`flex flex-col items-center gap-1 px-4 py-2 text-sm transition-all duration-300 ${
+                        className={`flex flex-col items-center justify-center gap-1 py-2 text-sm transition-all duration-300 ${
                             active === 'chat'
                                 ? 'relative -mt-8'
                                 : 'text-gray-500 hover:text-gray-700'
@@ -201,7 +201,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                     {/* Quotations */}
                     <Link
                         href={quotationsHref}
-                        className={`flex flex-col items-center gap-1 px-4 py-2 text-sm transition-all duration-300 ${
+                        className={`flex flex-col items-center justify-center gap-1 py-2 text-sm transition-all duration-300 ${
                             active === 'quotations'
                                 ? 'relative -mt-8'
                                 : 'text-gray-500 hover:text-gray-700'
@@ -257,7 +257,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                     {/* Reno Progress */}
                     <Link
                         href="#"
-                        className={`relative flex flex-col items-center gap-1 px-4 py-2 text-sm transition-all duration-300 ${
+                        className={`relative flex flex-col items-center justify-center gap-1 py-2 text-sm transition-all duration-300 ${
                             active === 'reno-progress'
                                 ? '-mt-8'
                                 : 'text-gray-500 hover:text-gray-700'
@@ -293,7 +293,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                                     <span className="absolute -top-1 -right-1 block h-2 w-2 rounded-full bg-[#d81e43]" />
                                 </div>
                                 <span className="mt-8 text-[#d81e43] font-semibold text-[0.6rem]">
-                                    Reno Progress
+                                    Progress
                                 </span>
                             </>
                         ) : (
@@ -320,7 +320,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                                     </svg>
                                     <span className="absolute -top-1 -right-1 block h-2 w-2 rounded-full bg-[#d81e43]" />
                                 </div>
-                                <span className="text-center">Reno Progress</span>
+                                <span className="text-center">Progress</span>
                             </>
                         )}
                     </Link>
@@ -328,7 +328,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                     {/* Profile */}
                     <Link
                         href={profileHref}
-                        className={`flex flex-col items-center gap-1 px-4 py-2 text-sm transition-all duration-300 ${
+                        className={`flex flex-col items-center justify-center gap-1 py-2 text-sm transition-all duration-300 ${
                             active === 'profile'
                                 ? 'relative -mt-8'
                                 : 'text-gray-500 hover:text-gray-700'
