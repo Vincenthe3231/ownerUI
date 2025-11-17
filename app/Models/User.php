@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -21,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone', // Add phone field
+        'profile_photo', // Add profile photo field
     ];
 
     /**
@@ -34,6 +37,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -44,5 +56,31 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the URL to the user's profile photo.
+     *
+     * @return string|null
+     */
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        if ($this->profile_photo) {
+            // Use current request's base URL if available (during web requests)
+            // This ensures the URL matches the actual server URL, not APP_URL
+            try {
+                $request = request();
+                if ($request) {
+                    $baseUrl = $request->getSchemeAndHttpHost();
+                    return $baseUrl . '/storage/' . $this->profile_photo;
+                }
+            } catch (\Exception $e) {
+                // If no request context, fall through to Storage::url()
+            }
+            // Fallback to Storage::url() which uses APP_URL (for console/queue jobs)
+            return Storage::disk('public')->url($this->profile_photo);
+        }
+
+        return null;
     }
 }

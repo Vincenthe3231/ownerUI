@@ -111,8 +111,8 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                         <div className="flex space-x-1">
                             <button
                                 onClick={() => setActiveTab('overview')}
-                                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'overview'
-                                    ? 'bg-blue-600 text-white'
+                                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'overview'
+                                    ? 'bg-[#d81e43] text-white'
                                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
@@ -120,8 +120,8 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             </button>
                             <button
                                 onClick={() => setActiveTab('quotation-order')}
-                                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'quotation-order'
-                                    ? 'bg-blue-600 text-white'
+                                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'quotation-order'
+                                    ? 'bg-[#d81e43] text-white'
                                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
@@ -129,8 +129,8 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             </button>
                             <button
                                 onClick={() => setActiveTab('terms')}
-                                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'terms'
-                                    ? 'bg-blue-600 text-white'
+                                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'terms'
+                                    ? 'bg-[#d81e43] text-white'
                                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
@@ -592,6 +592,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                     {/* ✅ Package list */}
                                     {packages.filter(pkg => pkg.type === 'optional').map((pkg) => {
                                         const isEnabled = isPackageEnabled(pkg);
+                                        const isConfirmed = quotation?.status === 'Sale' || quotation?.status === 'Confirmed' || !quotation?.status;
                                         return (
                                             <div
                                                 key={pkg.id}
@@ -612,12 +613,21 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    togglePackageEnabled(pkg.id);
+                                                                    if (!isConfirmed) {
+                                                                        togglePackageEnabled(pkg.id);
+                                                                    }
                                                                 }}
                                                                 type="button"
                                                                 role="switch"
                                                                 aria-checked={isEnabled}
-                                                                className={`relative inline-flex flex-shrink-0 h-6 w-12 border-2 rounded-full transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isEnabled ? 'bg-blue-600 border-blue-600' : 'bg-gray-300 border-gray-300'}`}
+                                                                disabled={isConfirmed}
+                                                                className={`relative inline-flex flex-shrink-0 h-6 w-12 border-2 rounded-full transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                                                    isConfirmed 
+                                                                        ? 'bg-gray-200 border-gray-200 cursor-not-allowed opacity-50' 
+                                                                        : isEnabled 
+                                                                            ? 'bg-blue-600 border-blue-600' 
+                                                                            : 'bg-gray-300 border-gray-300'
+                                                                }`}
                                                             >
                                                                 <span
                                                                     className={`transform transition-transform duration-200 ease-in-out inline-block h-5 w-5 bg-white rounded-full shadow ${isEnabled ? 'translate-x-6' : 'translate-x-0'}`}

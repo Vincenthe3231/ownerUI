@@ -3,6 +3,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 
 const heroSlides = [
     {
@@ -139,8 +140,12 @@ const currentProjects = [
     // },
 ];
 
+const paddedTitles = ['Current Projects', 'Upcoming Projects'];
+
 export default function Home() {
     const [activeSlide, setActiveSlide] = useState(0);
+    const [isCurrentProjectsOpen, setIsCurrentProjectsOpen] = useState(true);
+    const [isOtherProjectsOpen, setIsOtherProjectsOpen] = useState(true);
     const carouselRef = useRef(null);
 
     const slideCount = heroSlides.length;
@@ -177,8 +182,12 @@ export default function Home() {
                                 </svg>
                             </div>
                             <div>
+                            <div>
                                 <div className="font-bold text-lg" style={{ color: '#d81e43' }}>RenoXpert</div>
-                                <div className="text-gray-400 text-xs">powered by</div>
+                                <div className="text-gray-400 text-[0.6rem]">empowered by
+                                    <span className="font-bold" style={{ color: '#3cc0bd' }}>&nbsp;be</span>
+                                    <span className="font-bold" style={{ color: '#f5833d' }}>live</span></div>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -276,11 +285,20 @@ export default function Home() {
                         ))}
                     </section>
 
+                    {/* Current Projects Accordion */}
+                    <ProjectAccordion
+                        title="Current Projects"
+                        projects={currentProjects}
+                        isOpen={!isCurrentProjectsOpen}
+                        onToggle={() => setIsCurrentProjectsOpen(!isCurrentProjectsOpen)}
+                    />
 
-                    <ProjectSection
-                        title="Other Projects"
+                    {/* Other Projects Accordion */}
+                    <ProjectAccordion
+                        title="Upcoming Projects"
                         projects={upcomingProjects}
-                        accent="from-rose-100 to-rose-50"
+                        isOpen={!isOtherProjectsOpen}
+                        onToggle={() => setIsOtherProjectsOpen(!isOtherProjectsOpen)}
                     />
                 </div>
 
@@ -290,55 +308,86 @@ export default function Home() {
     );
 }
 
-function ProjectSection({ title, projects, accent }) {
+function ProjectAccordion({ title, projects, isOpen, onToggle }) {
+    const contentRef = useRef(null);
+    const [contentHeight, setContentHeight] = useState(0);
+
+    useEffect(() => {
+        if (contentRef.current) {
+            setContentHeight(contentRef.current.scrollHeight);
+        }
+    }, [projects, isOpen]);
+
+    // Recalculate height when accordion opens
+    useEffect(() => {
+        if (isOpen && contentRef.current) {
+            setContentHeight(contentRef.current.scrollHeight);
+        }
+    }, [isOpen]);
+
     return (
         <section className="space-y-4">
-            <div className="flex items-center justify-between">
+            {/* Accordion Header */}
+            <button
+                onClick={onToggle}
+                className="w-full flex items-center justify-between p-0 bg-transparent border-0 cursor-pointer hover:opacity-80 transition-opacity"
+            >
                 <h2 className="text-lg font-semibold text-slate-900">
                     {title}
                 </h2>
-                <svg
-                    className="h-5 w-5 text-slate-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <div className="flex items-center">
+                    {isOpen ? (
+                        <ChevronDown className="h-5 w-5 text-slate-400 transition-transform" />
+                    ) : (
+                        <ChevronRight className="h-5 w-5 text-slate-400 transition-transform" />
+                    )}
+                </div>
+            </button>
+
+            {/* Accordion Content - Animated Expand/Collapse */}
+            <div
+                className="overflow-hidden transition-all duration-300 ease-in-out"
+                style={{
+                    maxHeight: isOpen ? `${contentHeight}px` : '0px',
+                    opacity: isOpen ? 1 : 0,
+                }}
+            >
+                <div 
+                    ref={contentRef}
+                    className="grid grid-cols-2 gap-3"
+                    style={{
+                        paddingBottom: paddedTitles.includes(title) && isOpen ? '20px' : '0px',
+                    }}
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                    />
-                </svg>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-                {projects.map((project, index) => {
-                    const isLast = index === projects.length - 1;
-                    const isOddCount = projects.length % 2 === 1;
-                    return (
-                        <article
-                            key={project.id}
-                            className={`group flex flex-col overflow-hidden rounded-3xl bg-white transition-transform hover:scale-105 ${isLast && isOddCount ? 'col-span-2 mx-auto' : ''
+                    {projects.map((project, index) => {
+                        const isLast = index === projects.length - 1;
+                        const isOddCount = projects.length % 2 === 1;
+                        return (
+                            <article
+                                key={project.id}
+                                className={`group flex flex-col overflow-hidden rounded-3xl bg-white transition-transform hover:scale-105 ${
+                                    isLast && isOddCount ? 'col-span-2 mx-auto' : ''
                                 }`}
-                            style={{
-                                boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
-                            }}
-                        >
-                            <img
-                                src={project.image}
-                                alt={project.name}
-                                className="h-28 w-full object-cover"
-                                loading="lazy"
-                            />
-                            <div className="px-3 pb-3 pt-2">
-                                <h3 className="text-sm font-semibold text-slate-900">
-                                    {project.name}
-                                </h3>
-                                <p className="text-xs text-slate-500">{project.location}</p>
-                            </div>
-                        </article>
-                    );
-                })}
+                                style={{
+                                    boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
+                                }}
+                            >
+                                <img
+                                    src={project.image}
+                                    alt={project.name}
+                                    className="h-28 w-full object-cover"
+                                    loading="lazy"
+                                />
+                                <div className="px-3 pb-3 pt-2">
+                                    <h3 className="text-sm font-semibold text-slate-900">
+                                        {project.name}
+                                    </h3>
+                                    <p className="text-xs text-slate-500">{project.location}</p>
+                                </div>
+                            </article>
+                        );
+                    })}
+                </div>
             </div>
         </section>
     );
