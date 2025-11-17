@@ -34,7 +34,7 @@ export default function Quotations({ quotations = [] }) {
                 {/* Quotations List */}
                 <div className="px-4 py-6 space-y-4 pb-24">
                     {quotations.map((quotation, index) => {
-                        const isConfirmed = quotation.status === 'Sale' || quotation.status === 'Confirmed';
+                        const isConfirmed = quotation.status === 'Confirmed';
                         const isUnreleased = quotation.status === 'Unreleased';
                         const iconColor = isConfirmed ? '#d81e43' : isUnreleased ? '#6b7280' : '#3b82f6';
                         const iconBgColor = isConfirmed ? 'rgba(216, 30, 67, 0.1)' : isUnreleased ? 'rgba(107, 114, 128, 0.1)' : 'rgba(59, 130, 246, 0.1)';

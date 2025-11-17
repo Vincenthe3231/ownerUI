@@ -1,48 +1,12 @@
 import { Link } from '@inertiajs/react';
-import { useEffect, useRef, useState } from 'react';
 
 export default function BottomNavigation({ active = 'quotations' }) {
-    const [isHidden, setIsHidden] = useState(false);
-    const [pressedItem, setPressedItem] = useState(null);
-    const lastScrollY = useRef(0);
-    const ticking = useRef(false);
-
     const resolveRoute = (name, fallback) =>
         typeof route === 'function' ? route(name) : fallback;
 
     const homeHref = resolveRoute('home', '/home');
     const quotationsHref = resolveRoute('quotations.index', '/quotations');
     const profileHref = resolveRoute('profile.edit', '/profile');
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-
-            if (!ticking.current) {
-                window.requestAnimationFrame(() => {
-                    const scrollingDown = currentScrollY > lastScrollY.current + 12;
-                    const scrollingUp = currentScrollY < lastScrollY.current - 12;
-
-                    if (scrollingDown && currentScrollY > 48) {
-                        setIsHidden(true);
-                    } else if (scrollingUp || currentScrollY <= 48) {
-                        setIsHidden(false);
-                    }
-
-                    lastScrollY.current = currentScrollY;
-                    ticking.current = false;
-                });
-
-                ticking.current = true;
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
 
     const navItems = [
         { id: 'home', label: 'Home', href: homeHref, icon: 'home' },
@@ -98,8 +62,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
 
     return (
         <div
-            className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-out ${isHidden ? 'translate-y-full' : 'translate-y-0'
-                }`}
+            className="fixed bottom-0 left-0 right-0 z-50"
         >
             <div className="relative bg-gradient-to-t from-white via-white to-gray-50/50 backdrop-blur-lg"
                 style={{
@@ -329,7 +292,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                                     </svg>
                                     <span className="absolute -top-1 -right-1 block h-2 w-2 rounded-full bg-[#d81e43]" />
                                 </div>
-                                <span className="mt-8 text-[#d81e43] font-semibold text-xs">
+                                <span className="mt-8 text-[#d81e43] font-semibold text-[0.6rem]">
                                     Reno Progress
                                 </span>
                             </>
@@ -357,7 +320,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                                     </svg>
                                     <span className="absolute -top-1 -right-1 block h-2 w-2 rounded-full bg-[#d81e43]" />
                                 </div>
-                                <span>Reno Progress</span>
+                                <span className="text-center">Reno Progress</span>
                             </>
                         )}
                     </Link>

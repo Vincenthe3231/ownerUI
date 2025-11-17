@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/quotations', [QuotationController::class, 'index'])->name('quotations.index');
     Route::get('/quotation/{id}/overview', [QuotationController::class, 'overview'])->name('quotation.overview');
+    Route::get('/quotation/{id}/statistics', [QuotationController::class, 'statistics'])->name('quotation.statistics');
     Route::get('/quotation/{id}/unreleased', [QuotationController::class, 'unreleased'])->name('quotation.unreleased');
 });
 

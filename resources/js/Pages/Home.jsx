@@ -146,6 +146,8 @@ export default function Home() {
     const [activeSlide, setActiveSlide] = useState(0);
     const [isCurrentProjectsOpen, setIsCurrentProjectsOpen] = useState(true);
     const [isOtherProjectsOpen, setIsOtherProjectsOpen] = useState(true);
+    const [hasCurrentProjectsBeenExpanded, setHasCurrentProjectsBeenExpanded] = useState(false);
+    const [hasUpcomingProjectsBeenExpanded, setHasUpcomingProjectsBeenExpanded] = useState(false);
     const carouselRef = useRef(null);
 
     const slideCount = heroSlides.length;
@@ -290,7 +292,13 @@ export default function Home() {
                         title="Current Projects"
                         projects={currentProjects}
                         isOpen={!isCurrentProjectsOpen}
-                        onToggle={() => setIsCurrentProjectsOpen(!isCurrentProjectsOpen)}
+                        onToggle={() => {
+                            setIsCurrentProjectsOpen(!isCurrentProjectsOpen);
+                            if (!hasCurrentProjectsBeenExpanded && !isCurrentProjectsOpen) {
+                                setHasCurrentProjectsBeenExpanded(true);
+                            }
+                        }}
+                        showIndicator={!hasCurrentProjectsBeenExpanded}
                     />
 
                     {/* Other Projects Accordion */}
@@ -298,7 +306,13 @@ export default function Home() {
                         title="Upcoming Projects"
                         projects={upcomingProjects}
                         isOpen={!isOtherProjectsOpen}
-                        onToggle={() => setIsOtherProjectsOpen(!isOtherProjectsOpen)}
+                        onToggle={() => {
+                            setIsOtherProjectsOpen(!isOtherProjectsOpen);
+                            if (!hasUpcomingProjectsBeenExpanded && !isOtherProjectsOpen) {
+                                setHasUpcomingProjectsBeenExpanded(true);
+                            }
+                        }}
+                        showIndicator={!hasUpcomingProjectsBeenExpanded}
                     />
                 </div>
 
@@ -308,7 +322,7 @@ export default function Home() {
     );
 }
 
-function ProjectAccordion({ title, projects, isOpen, onToggle }) {
+function ProjectAccordion({ title, projects, isOpen, onToggle, showIndicator = false }) {
     const contentRef = useRef(null);
     const [contentHeight, setContentHeight] = useState(0);
 
@@ -332,9 +346,18 @@ function ProjectAccordion({ title, projects, isOpen, onToggle }) {
                 onClick={onToggle}
                 className="w-full flex items-center justify-between p-0 bg-transparent border-0 cursor-pointer hover:opacity-80 transition-opacity"
             >
-                <h2 className="text-lg font-semibold text-slate-900">
-                    {title}
-                </h2>
+                <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-slate-900">
+                        {title}
+                    </h2>
+                    {showIndicator && (
+                        <span 
+                            className="w-2 h-2 rounded-full -mt-3 -ms-1"
+                            style={{ backgroundColor: '#d81e43' }}
+                            aria-label="Expandable section"
+                        />
+                    )}
+                </div>
                 <div className="flex items-center">
                     {isOpen ? (
                         <ChevronDown className="h-5 w-5 text-slate-400 transition-transform" />

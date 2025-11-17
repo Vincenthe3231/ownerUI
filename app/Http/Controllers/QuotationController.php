@@ -75,6 +75,7 @@ class QuotationController extends Controller
         
         // Format quotation data (use database values or fallback to hardcoded)
         $quotationData = [
+            'id' => $quotation->id, // Add ID for route generation
             'quotation_id' => 'QUO-2500001',
             'date' => $quotation->created_at ? $quotation->created_at->format('d M Y') : '06 Nov 2025',
             'total_amount' => $quotation->total_amount ?? 22018.00,
@@ -265,6 +266,109 @@ class QuotationController extends Controller
             'quotation' => $quotationData,
             'invoices' => $invoices,
             'packages' => $packages,
+        ]);
+    }
+
+    /**
+     * Display the quotation statistics page.
+     */
+    public function statistics(Request $request, $id): Response
+    {
+        // Fetch quotation from database (for validation that it exists)
+        $quotation = OrderQuotation::findOrFail($id);
+
+        // Format quotation data (use database values or fallback to hardcoded)
+        $quotationData = [
+            'id' => $quotation->id,
+            'quotation_id' => 'QUO-2500001',
+            'date' => $quotation->created_at ? $quotation->created_at->format('d M Y') : '06 Nov 2025',
+            'total_amount' => $quotation->total_amount ?? 22018.00,
+            'status' => 'Confirmed',
+            'name' => 'Meta City',
+            'unit' => 'A-30-12',
+            'unit_type' => 'B',
+            'partition' => 'Yes',
+            'address' => 'Jln Atmosphere Utama 2, 43400, Seri Kembangan, Selangor',
+        ];
+
+        // Use the same invoice data as overview page
+        $now = now();
+        $invoices = [
+            [
+                'invoice_no' => 'INV-RSO-2500001-1',
+                'amount' => 17304.50,
+                'due_date' => '8 August 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(5)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-2',
+                'amount' => 3460.90,
+                'due_date' => '15 August 2025',
+                'status' => 'overdue',
+                'created_at' => $now->copy()->subDays(3)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-3',
+                'amount' => 17304.50,
+                'due_date' => '22 August 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(1)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-4',
+                'amount' => 17304.50,
+                'due_date' => '29 August 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(10)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-5',
+                'amount' => 17304.50,
+                'due_date' => '5 September 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(8)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-6',
+                'amount' => 17304.50,
+                'due_date' => '12 September 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(6)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-7',
+                'amount' => 17304.50,
+                'due_date' => '19 September 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(4)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-8',
+                'amount' => 17304.50,
+                'due_date' => '26 September 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(2)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-9',
+                'amount' => 17304.50,
+                'due_date' => '3 October 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(15)->toIso8601String(),
+            ],
+            [
+                'invoice_no' => 'INV-RSO-2500001-10',
+                'amount' => 17304.50,
+                'due_date' => '10 October 2025',
+                'status' => 'paid',
+                'created_at' => $now->copy()->subDays(20)->toIso8601String(),
+            ],
+        ];
+
+        return Inertia::render('QuotationStatistics', [
+            'quotation' => $quotationData,
+            'invoices' => $invoices,
         ]);
     }
 }

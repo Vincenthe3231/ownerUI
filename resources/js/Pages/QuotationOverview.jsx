@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import Modal from '@/Components/Modal';
 import BottomNavigation from '@/Components/BottomNavigation';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 
 export default function QuotationOverview({ quotation, invoices = [], packages = [] }) {
     const [activeTab, setActiveTab] = useState('overview');
@@ -9,38 +10,25 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
     const [isQuoteDetailsExpanded, setIsQuoteDetailsExpanded] = useState(false);
     const [isPaymentSummaryExpanded, setIsPaymentSummaryExpanded] = useState(false);
     const [showTermsModal, setShowTermsModal] = useState(false);
-    const [invoiceFilter, setInvoiceFilter] = useState('all'); // 'all' or 'recently'
+    const [isPaymentInvoicesExpanded, setIsPaymentInvoicesExpanded] = useState(false);
+    const [hasPaymentInvoicesBeenExpanded, setHasPaymentInvoicesBeenExpanded] = useState(false);
     const [expandedPackages, setExpandedPackages] = useState({}); // Track which packages are expanded
     const [enabledPackages, setEnabledPackages] = useState({}); // Track which optional packages are enabled
 
-    // Calculate invoice statistics
+    // Calculate invoice statistics for status chips
     const totalInvoices = invoices.length;
     const paidInvoices = invoices.filter(inv => inv.status === 'paid').length;
-    const paidPercentage = totalInvoices > 0 ? (paidInvoices / totalInvoices) * 100 : 0;
-    const issuedPercentage = 100; // All invoices are issued
+    const overdueInvoices = invoices.filter(inv => inv.status === 'overdue').length;
+    const pendingInvoices = invoices.filter(inv => inv.status !== 'paid' && inv.status !== 'overdue').length;
 
-    // Calculate payment amounts
-    const totalAmount = quotation?.total_amount || 22018.00;
+    // Calculate payment amounts from invoices to match QuotationStatistics.jsx
+    const totalAmount = invoices.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0);
     const monthlyPayment = installmentMonths === 36
-        ? Math.round(totalAmount / 36)
-        : Math.round(totalAmount / 60);
+        ? totalAmount / 36
+        : totalAmount / 60;
     const initialDownPayment = Math.round(totalAmount / 2);
     const balancePayment = totalAmount - initialDownPayment;
 
-    // Filter invoices based on selected filter
-    const filteredInvoices = invoices.filter((invoice) => {
-        if (invoiceFilter === 'all') {
-            return true;
-        }
-        // Filter for "Recently" - invoices created within last 30 days
-        if (invoiceFilter === 'recently' && invoice.created_at) {
-            const invoiceDate = new Date(invoice.created_at);
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            return invoiceDate >= thirtyDaysAgo;
-        }
-        return true;
-    });
 
     // const pageTitle = activeTab === 'quotation-order' ? 'Quotation Order' : 'Quotation Overview';
     const pageTitle =
@@ -80,113 +68,114 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
             <Head title={pageTitle} />
 
             <div className="min-h-screen bg-gray-100 pb-20">
-                {/* Header */}
-                <div className="bg-white shadow-sm">
-                    <div className="px-4 py-4">
-                        <div className="flex items-center mb-4">
-                            <Link
-                                href="/quotations"
-                                className="mr-3 text-gray-600 hover:text-gray-900"
-                            >
-                                <svg
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                <div className="px-4 py-4 space-y-4">
+                    {/* 1. App Bar Card - Title and Back Navigation */}
+                    <div className="bg-[#d81e43] rounded-lg shadow-sm">
+                        <div className="fixed top-0 left-0 w-full bg-[#d81e43] text-white shadow-lg z-50 pt-4 pb-6 px-4">
+                            <div className="flex items-center">
+                                <Link
+                                    href="/quotations"
+                                    className="mr-3 text-white hover:text-gray-900"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M15 19l-7-7 7-7"
-                                    />
-                                </svg>
-                            </Link>
-                            <h1 className="text-xl font-semibold text-gray-900">
-                                {pageTitle}
-                            </h1>
-                        </div>
-
-                        {/* Tabs */}
-                        <div className="flex space-x-1">
-                            <button
-                                onClick={() => setActiveTab('overview')}
-                                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'overview'
-                                    ? 'bg-[#d81e43] text-white'
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                                    }`}
-                            >
-                                Overview
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('quotation-order')}
-                                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'quotation-order'
-                                    ? 'bg-[#d81e43] text-white'
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                                    }`}
-                            >
-                                Quotation Order
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('terms')}
-                                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'terms'
-                                    ? 'bg-[#d81e43] text-white'
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                                    }`}
-                            >
-                                T&C
-                            </button>
+                                    <svg
+                                        className="w-6 h-6"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M15 19l-7-7 7-7"
+                                        />
+                                    </svg>
+                                </Link>
+                                <h1 className="text-xl font-semibold text-white">
+                                    {pageTitle}
+                                </h1>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Content */}
-                <div className="px-4 py-4 space-y-4">
+                    {/* 2. Tabs Section Card */}
+                    <div className="bg-white rounded-lg shadow-sm">
+                        <div className="px-4 py-4 mt-[4.5rem]">
+                            <div className="flex space-x-1">
+                                <button
+                                    onClick={() => setActiveTab('overview')}
+                                    className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'overview'
+                                        ? 'bg-[#d81e43] text-white'
+                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    Overview
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('quotation-order')}
+                                    className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'quotation-order'
+                                        ? 'bg-[#d81e43] text-white'
+                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    Quotation Order
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('terms')}
+                                    className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeTab === 'terms'
+                                        ? 'bg-[#d81e43] text-white'
+                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    T&C
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 3. Invoice Status Chips Section Card */}
+                    <div className="bg-white rounded-lg shadow-sm">
+                        <div className="px-4 py-4">
+                            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {totalInvoices > 0 && (
+                                        <span className="px-2 py-1 text-[0.7rem] font-medium bg-gray-100 text-gray-800 rounded-full">
+                                            Total: {totalInvoices}
+                                        </span>
+                                    )}
+                                    {paidInvoices > 0 && (
+                                        <span className="px-3 py-1 text-[0.7rem] font-medium bg-green-100 text-green-800 rounded-full">
+                                            Paid: {paidInvoices}
+                                        </span>
+                                    )}
+                                    {overdueInvoices > 0 && (
+                                        <span className="px-3 py-1 text-[0.7rem] font-medium bg-pink-100 text-pink-800 rounded-full">
+                                            Overdue: {overdueInvoices}
+                                        </span>
+                                    )}
+                                    {pendingInvoices > 0 && (
+                                        <span className="px-3 py-1 text-[0.7rem] font-medium bg-gray-100 text-gray-800 rounded-full">
+                                            Pending: {pendingInvoices}
+                                        </span>
+                                    )}
+                                </div>
+                                {quotation?.id && (
+                                    <Link
+                                        href={route('quotation.statistics', quotation.id)}
+                                        className="flex items-center gap-1 text-sm font-medium underline text-[#d81e43] hover:text-[#d81e43] border-0 bg-transparent p-0 cursor-pointer"
+                                    >
+                                        View Statistic
+                                        <ChevronRight className="w-4 h-4" />
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="space-y-4">
                     {activeTab === 'overview' && (
                         <>
-                            {/* Invoice Status Card */}
-                            <div className="bg-white rounded-lg shadow-sm p-4">
-                                <div className="mb-4 text-center">
-                                    <div className="text-2xl font-bold text-gray-900 mb-1">
-                                        {issuedPercentage.toFixed(2)}% Invoice Issued
-                                    </div>
-                                    <span className="inline-block px-3 py-1 text-base font-medium bg-green-100 text-green-800 rounded-full">
-                                        {paidPercentage.toFixed(2)}% Paid
-                                    </span>
-                                </div>
-
-                                {/* Progress Bar */}
-                                <div className="mb-3">
-                                    <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden relative">
-                                        <div
-                                            className="h-full absolute left-0 top-0"
-                                            style={{
-                                                width: `${issuedPercentage}%`,
-                                                backgroundColor: '#bfdbfe'
-                                            }}
-                                        ></div>
-                                        <div
-                                            className="bg-green-500 h-full absolute left-0 top-0"
-                                            style={{ width: `${(paidPercentage / 100) * issuedPercentage}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-
-                                {/* Legend */}
-                                <div className="flex items-center justify-center space-x-4 text-xs text-gray-600">
-                                    <div className="flex items-center">
-                                        <div
-                                            className="w-2 h-2 rounded-full mr-2"
-                                            style={{ backgroundColor: '#bfdbfe' }}
-                                        ></div>
-                                        <span>Issued</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                        <span>Paid</span>
-                                    </div>
-                                </div>
-                            </div>
 
                             {/* Quote Details Card - Expandable */}
                             <div className="bg-white rounded-lg shadow-sm">
@@ -280,7 +269,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                         <select
                                             value={installmentMonths}
                                             onChange={(e) => setInstallmentMonths(Number(e.target.value))}
-                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white" autoFocus
+                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:border-gray-300 bg-white"
                                         >
                                             <option value={36}>36 months</option>
                                             <option value={60}>60 months</option>
@@ -290,7 +279,9 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                     {/* Monthly Payment Info */}
                                     <div className="mb-3">
                                         <div className="text-sm text-gray-900 mb-1">
-                                            <span className="text-red-600 font-bold">RM {monthlyPayment.toLocaleString()}</span>
+                                            <span className="text-red-600 font-bold">
+                                                RM {parseFloat(monthlyPayment.toFixed(2)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </span>
                                             <span className="text-gray-600">/month for {installmentMonths} months</span>
                                         </div>
                                         <div className="flex items-center text-xs text-gray-500">
@@ -323,7 +314,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                     <div className="text-right">
                                         <button
                                             onClick={() => setIsPaymentSummaryExpanded(!isPaymentSummaryExpanded)}
-                                            className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
+                                            className="text-sm text-[#d81e43] hover:text-[#d81e43] font-medium underline"
                                         >
                                             {isPaymentSummaryExpanded ? 'Hide Details' : 'View Details'}
                                         </button>
@@ -391,113 +382,119 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                 )}
                             </div>
 
-                            {/* Payment Invoices Card */}
-                            <div className="bg-white rounded-lg shadow-sm p-4">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-semibold text-gray-900">
-                                        Payment Invoices
-                                    </h3>
-                                    {/* Filter Buttons */}
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => setInvoiceFilter('recently')}
-                                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${invoiceFilter === 'recently'
-                                                ? 'bg-blue-600 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
-                                        >
-                                            Recently
-                                        </button>
-                                        <button
-                                            onClick={() => setInvoiceFilter('all')}
-                                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${invoiceFilter === 'all'
-                                                ? 'bg-blue-600 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
-                                        >
-                                            All
-                                        </button>
+                            {/* Payment Invoices Card - Accordion */}
+                            <div className="bg-white rounded-lg shadow-sm">
+                                <button
+                                    onClick={() => {
+                                        setIsPaymentInvoicesExpanded(!isPaymentInvoicesExpanded);
+                                        if (!hasPaymentInvoicesBeenExpanded && !isPaymentInvoicesExpanded) {
+                                            setHasPaymentInvoicesBeenExpanded(true);
+                                        }
+                                    }}
+                                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors mb-10"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            Payment Invoices
+                                        </h3>
+                                        {!hasPaymentInvoicesBeenExpanded && (
+                                            <span
+                                                className="w-2 h-2 rounded-full -mt-5 -ms-1"
+                                                style={{ backgroundColor: '#d81e43' }}
+                                                aria-label="Expandable section"
+                                            />
+                                        )}
                                     </div>
-                                </div>
+                                    <div className="flex items-center">
+                                        {isPaymentInvoicesExpanded ? (
+                                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                                        ) : (
+                                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                                        )}
+                                    </div>
+                                </button>
 
-                                <div className="space-y-4">
-                                    {filteredInvoices.length === 0 ? (
-                                        <div className="text-center py-8 text-gray-500 text-sm">
-                                            No invoices found for the selected filter.
-                                        </div>
-                                    ) : (
-                                        filteredInvoices.map((invoice, index) => (
-                                            <div
-                                                key={index}
-                                                className="bg-gray-50 border border-gray-100 rounded-lg p-4 shadow-sm"
-                                            >
-                                                <div className="flex items-start space-x-3">
-                                                    <div className="flex-shrink-0 mt-1">
-                                                        <div className="w-10 h-10 flex items-center justify-center relative">
-                                                            <svg
-                                                                className="w-10 h-10 text-blue-300"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                strokeWidth="1.5"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    d="M12 2L21 7L21 17L12 22L3 17L3 7L12 2Z"
-                                                                />
-                                                            </svg>
-                                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                                <div className="w-4 h-4 bg-blue-200 rounded-full"></div>
+                                {/* Expandable Invoice List */}
+                                {isPaymentInvoicesExpanded && (
+                                    <div className="px-4 pb-2 space-y-4 border-t border-gray-100">
+                                        {invoices.length === 0 ? (
+                                            <div className="text-center py-8 text-gray-500 text-sm">
+                                                No invoices found.
+                                            </div>
+                                        ) : (
+                                            invoices.map((invoice, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="bg-gray-50 border border-gray-100 rounded-lg p-4 shadow-sm"
+                                                >
+                                                    <div className="flex items-start space-x-3">
+                                                        <div className="flex-shrink-0 mt-1">
+                                                            <div className="w-10 h-10 flex items-center justify-center relative">
+                                                                <svg
+                                                                    className="w-10 h-10 text-blue-300"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                    strokeWidth="1.5"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        d="M12 2L21 7L21 17L12 22L3 17L3 7L12 2Z"
+                                                                    />
+                                                                </svg>
+                                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                                    <div className="w-4 h-4 bg-blue-200 rounded-full"></div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center justify-between mb-1">
-                                                            <div className="text-sm font-semibold text-blue-900">
-                                                                {invoice.invoice_no}
-                                                            </div>
-                                                            {invoice.status === 'paid' ? (
-                                                                <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                                                    Paid
-                                                                </span>
-                                                            ) : invoice.status === 'overdue' ? (
-                                                                <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-800 rounded-full">
-                                                                    Overdue
-                                                                </span>
-                                                            ) : (
-                                                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                                                                    {invoice.status}
-                                                                </span>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="text-sm text-gray-600 mb-1">
-                                                            Amount:{' '}
-                                                            <span className="font-semibold text-gray-900">
-                                                                RM{' '}
-                                                                {parseFloat(invoice.amount).toLocaleString(
-                                                                    'en-US',
-                                                                    {
-                                                                        minimumFractionDigits: 2,
-                                                                        maximumFractionDigits: 2,
-                                                                    }
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <div className="text-sm font-semibold text-blue-900">
+                                                                    {invoice.invoice_no}
+                                                                </div>
+                                                                {invoice.status === 'paid' ? (
+                                                                    <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                                                        Paid
+                                                                    </span>
+                                                                ) : invoice.status === 'overdue' ? (
+                                                                    <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-800 rounded-full">
+                                                                        Overdue
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                                                                        {invoice.status}
+                                                                    </span>
                                                                 )}
-                                                            </span>
-                                                        </div>
-                                                        <div className="text-sm text-gray-600">
-                                                            Due Date:{' '}
-                                                            <span className="font-semibold text-gray-900">
-                                                                {invoice.due_date}
-                                                            </span>
+                                                            </div>
+
+                                                            <div className="text-sm text-gray-600 mb-1">
+                                                                Amount:{' '}
+                                                                <span className="font-semibold text-gray-900">
+                                                                    RM{' '}
+                                                                    {parseFloat(invoice.amount).toLocaleString(
+                                                                        'en-US',
+                                                                        {
+                                                                            minimumFractionDigits: 2,
+                                                                            maximumFractionDigits: 2,
+                                                                        }
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-sm text-gray-600">
+                                                                Due Date:{' '}
+                                                                <span className="font-semibold text-gray-900">
+                                                                    {invoice.due_date}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </>
                     )}
@@ -621,13 +618,12 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                                 role="switch"
                                                                 aria-checked={isEnabled}
                                                                 disabled={isConfirmed}
-                                                                className={`relative inline-flex flex-shrink-0 h-6 w-12 border-2 rounded-full transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                                                                    isConfirmed 
-                                                                        ? 'bg-gray-200 border-gray-200 cursor-not-allowed opacity-50' 
-                                                                        : isEnabled 
-                                                                            ? 'bg-blue-600 border-blue-600' 
-                                                                            : 'bg-gray-300 border-gray-300'
-                                                                }`}
+                                                                className={`relative inline-flex flex-shrink-0 h-6 w-12 border-2 rounded-full transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isConfirmed
+                                                                    ? 'bg-gray-200 border-gray-200 cursor-not-allowed opacity-50'
+                                                                    : isEnabled
+                                                                        ? 'bg-blue-600 border-blue-600'
+                                                                        : 'bg-gray-300 border-gray-300'
+                                                                    }`}
                                                             >
                                                                 <span
                                                                     className={`transform transition-transform duration-200 ease-in-out inline-block h-5 w-5 bg-white rounded-full shadow ${isEnabled ? 'translate-x-6' : 'translate-x-0'}`}
@@ -724,30 +720,30 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                         {packages
                                                             .filter(pkg => pkg.type === 'optional' && pkg.progressive_payment)
                                                             .flatMap(pkg => pkg.progressive_payment)
-                                                            .map((payment, idx) => (
-                                                                <tr key={idx} className="border-b border-gray-100">
-                                                                    <td className="py-2 text-gray-900">{payment.description}</td>
-                                                                    <td className="text-center py-2 text-gray-900">{payment.percentage}%</td>
-                                                                    <td className="text-right py-2 text-gray-900 font-semibold">
-                                                                        {payment.amount.toLocaleString('en-US', {
-                                                                            minimumFractionDigits: 2,
-                                                                            maximumFractionDigits: 2,
-                                                                        })}
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
+                                                            .map((payment, idx) => {
+                                                                // Calculate amount based on totalAmount and percentage
+                                                                const calculatedAmount = (totalAmount * payment.percentage) / 100;
+                                                                return (
+                                                                    <tr key={idx} className="border-b border-gray-100">
+                                                                        <td className="py-2 text-gray-900">{payment.description}</td>
+                                                                        <td className="text-center py-2 text-gray-900">{payment.percentage}%</td>
+                                                                        <td className="text-right py-2 text-gray-900 font-semibold">
+                                                                            {calculatedAmount.toLocaleString('en-US', {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2,
+                                                                            })}
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            })}
                                                         <tr className="font-bold">
                                                             <td className="py-2 text-gray-900">Total</td>
                                                             <td className="text-center py-2 text-gray-900">100%</td>
                                                             <td className="text-right py-2 text-gray-900">
-                                                                {packages
-                                                                    .filter(pkg => pkg.type === 'optional' && pkg.progressive_payment)
-                                                                    .flatMap(pkg => pkg.progressive_payment)
-                                                                    .reduce((sum, p) => sum + p.amount, 0)
-                                                                    .toLocaleString('en-US', {
-                                                                        minimumFractionDigits: 2,
-                                                                        maximumFractionDigits: 2,
-                                                                    })}
+                                                                {totalAmount.toLocaleString('en-US', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2,
+                                                                })}
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -767,7 +763,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             <p className="text-gray-600">Terms & Conditions content will be displayed here.</p>
                         </div>
                     )}
-
+                    </div>
                 </div>
             </div>
 
