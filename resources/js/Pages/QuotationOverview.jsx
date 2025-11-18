@@ -269,7 +269,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                         <select
                                             value={installmentMonths}
                                             onChange={(e) => setInstallmentMonths(Number(e.target.value))}
-                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:border-gray-300 bg-white"
+                                            className="input-cycling-border w-full px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-0 bg-white"
                                         >
                                             <option value={36}>36 months</option>
                                             <option value={60}>60 months</option>
@@ -322,8 +322,8 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                 </div>
 
                                 {/* Expandable Payment Details */}
-                                {isPaymentSummaryExpanded && (
-                                    <div className="px-4 pb-4 space-y-3 border-t border-gray-100">
+                                <div className={`expandable-content border-t border-gray-100 ${isPaymentSummaryExpanded ? 'expanded' : ''}`}>
+                                    <div className="px-4 space-y-3">
                                         {/* Total Renovation */}
                                         <div className="flex justify-between items-center pt-3">
                                             <div className="text-sm text-gray-600">Total Renovation</div>
@@ -379,7 +379,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                             <div className="text-sm font-semibold text-gray-900">RM {balancePayment.toLocaleString()}</div>
                                         </div>
                                     </div>
-                                )}
+                                </div>
                             </div>
 
                             {/* Payment Invoices Card - Accordion */}

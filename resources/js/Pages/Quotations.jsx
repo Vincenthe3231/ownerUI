@@ -48,10 +48,16 @@ export default function Quotations({ quotations = [] }) {
                                 className="block"
                             >
                                 <div 
-                                    className="bg-white rounded-3xl p-4 transition-transform hover:scale-105"
-                                    style={{
-                                        boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
-                                    }}
+                                    className={`rounded-3xl p-4 transition-transform hover:scale-105 ${
+                                        isUnreleased 
+                                            ? 'unreleased-blink' 
+                                            : 'bg-white'
+                                    }`}
+                                    style={
+                                        !isUnreleased ? {
+                                            boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
+                                        } : {}
+                                    }
                                 >
                                     <div className="flex items-start">
                                         {/* Icon */}

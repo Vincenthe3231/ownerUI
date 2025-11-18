@@ -292,7 +292,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
                                     </svg>
                                     <span className="absolute -top-1 -right-1 block h-2 w-2 rounded-full bg-[#d81e43]" />
                                 </div>
-                                <span className="mt-8 text-[#d81e43] font-semibold text-[0.6rem]">
+                                <span className="mt-8 text-[#d81e43] font-semibold text-[0.6rem] text-center">
                                     Progress
                                 </span>
                             </>

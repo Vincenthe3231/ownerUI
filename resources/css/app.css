@@ -11,3 +11,140 @@
     -ms-overflow-style: none;  /* IE & Edge */
     scrollbar-width: none;     /* Firefox */
 }
+
+/* Cycling border animation effect for Unreleased quotations */
+@keyframes rotateBorder {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 8px 32px -5px rgba(60, 192, 189, 0.5), 
+                    0 4px 6px -2px rgba(60, 192, 189, 0.3),
+                    0 0 0 0 rgba(60, 192, 189, 0.4);
+    }
+    50% {
+        box-shadow: 0 8px 32px -5px rgba(60, 192, 189, 0.8), 
+                    0 4px 6px -2px rgba(60, 192, 189, 0.5),
+                    0 0 0 4px rgba(60, 192, 189, 0.2);
+    }
+}
+
+.unreleased-blink {
+    position: relative;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.75);
+    border: 3px solid rgba(60, 192, 189, 0.15);
+    animation: pulseGlow 2s ease-in-out infinite;
+    overflow: hidden;
+}
+
+.unreleased-blink::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 24px;
+    padding: 3px;
+    /*
+     * Don't delete this code, it creates a radar gradient effect around the quotation card.
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 230deg,
+        rgba(60, 192, 189, 0.8) 240deg,
+        rgba(60, 192, 189, 1) 250deg,
+        rgba(60, 192, 189, 1) 270deg,
+        rgba(60, 192, 189, 0.8) 280deg,
+        transparent 290deg,
+        transparent 360deg
+    );
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: rotateBorder 2.5s linear infinite;
+    z-index: 0; */
+}
+
+.unreleased-blink > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Cycling border animation for input fields (without conic gradient) */
+@keyframes cycleInputBorder {
+    0% {
+        border-top-color: rgba(60, 192, 189, 0.3);
+        border-right-color: rgba(60, 192, 189, 0.1);
+        border-bottom-color: rgba(60, 192, 189, 0.1);
+        border-left-color: rgba(60, 192, 189, 0.1);
+        box-shadow: 0 0 0 0 rgba(60, 192, 189, 0.2);
+    }
+    25% {
+        border-top-color: rgba(60, 192, 189, 0.1);
+        border-right-color: rgba(60, 192, 189, 0.3);
+        border-bottom-color: rgba(60, 192, 189, 0.1);
+        border-left-color: rgba(60, 192, 189, 0.1);
+        box-shadow: 2px 0 8px -2px rgba(60, 192, 189, 0.3);
+    }
+    50% {
+        border-top-color: rgba(60, 192, 189, 0.1);
+        border-right-color: rgba(60, 192, 189, 0.1);
+        border-bottom-color: rgba(60, 192, 189, 0.3);
+        border-left-color: rgba(60, 192, 189, 0.1);
+        box-shadow: 0 2px 8px -2px rgba(60, 192, 189, 0.3);
+    }
+    75% {
+        border-top-color: rgba(60, 192, 189, 0.1);
+        border-right-color: rgba(60, 192, 189, 0.1);
+        border-bottom-color: rgba(60, 192, 189, 0.1);
+        border-left-color: rgba(60, 192, 189, 0.3);
+        box-shadow: -2px 0 8px -2px rgba(60, 192, 189, 0.3);
+    }
+    100% {
+        border-top-color: rgba(60, 192, 189, 0.3);
+        border-right-color: rgba(60, 192, 189, 0.1);
+        border-bottom-color: rgba(60, 192, 189, 0.1);
+        border-left-color: rgba(60, 192, 189, 0.1);
+        box-shadow: 0 0 0 0 rgba(60, 192, 189, 0.2);
+    }
+}
+
+.input-cycling-border {
+    position: relative;
+    border: 2px solid rgba(60, 192, 189, 0.2) !important;
+    animation: cycleInputBorder 3s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.input-cycling-border:focus {
+    outline: none;
+    animation: cycleInputBorder 2s ease-in-out infinite;
+}
+
+/* Expand animation for View Details section */
+.expandable-content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 1s ease-in-out, opacity 0.75s ease-in-out, padding 1s ease-in-out;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.expandable-content.expanded {
+    max-height: 1000px;
+    opacity: 1;
+    padding-top: 0.75rem;
+    padding-bottom: 1rem;
+}

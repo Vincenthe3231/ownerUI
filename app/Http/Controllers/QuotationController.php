@@ -21,7 +21,7 @@ class QuotationController extends Controller
                 'quotation_id' => 'QUO-2500001',
                 'property_name' => 'Meta City',
                 'unit' => 'A-30-12',
-                'amount' => 22018.00,
+                'amount' => 159210.40,
                 'status' => 'Confirmed', // Will show as "Sale" on overview
                 'show_amount' => true,
             ],
