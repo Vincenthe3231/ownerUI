@@ -228,22 +228,21 @@ export default function Edit() {
                 <section className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-2">
                     {/* Profile Card with Hybrid Morphism */}
                     <div 
-                        className="rounded-3xl bg-white p-6"
+                        className="rounded-3xl bg-white p-4"
                         style={{
-                            boxShadow: '0 10px 25px -5px rgba(216, 30, 67, 0.2), 0 4px 6px -2px rgba(216, 30, 67, 0.1)',
                             backdropFilter: 'blur(10px)',
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                         }}
                     >
                         <div className="flex flex-col items-center text-center">
-                            <div className="relative mb-4">
+                            <div className="relative">
                                 <div 
-                                    className="flex h-24 w-24 items-center justify-center rounded-3xl overflow-hidden"
+                                    className="flex h-36 w-36 items-center justify-center rounded-full overflow-hidden"
                                     style={{
                                         background: imagePreview || profileImage 
                                             ? 'transparent' 
                                             : 'linear-gradient(135deg, rgba(216, 30, 67, 0.15) 0%, rgba(255, 255, 255, 0.9) 100%)',
-                                        boxShadow: 'inset 0 2px 4px rgba(216, 30, 67, 0.1), 0 4px 8px rgba(216, 30, 67, 0.15)',
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                                     }}
                                 >
                                     {imagePreview || profileImage ? (
@@ -253,7 +252,7 @@ export default function Edit() {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <span className="text-2xl font-semibold" style={{ color: '#d81e43' }}>
+                                        <span className="text-3xl font-semibold" style={{ color: '#d81e43' }}>
                                             {initials}
                                         </span>
                                     )}
@@ -315,9 +314,9 @@ export default function Edit() {
                                 onChange={handleImageChange}
                                 className="hidden"
                             />
-                            <p className="mt-1 text-base font-medium" style={{ color: '#d81e43' }}>
+                            {/* <p className="mt-1 text-base font-medium" style={{ color: '#d81e43' }}>
                                 {user.role ?? 'Account Owner'}
-                            </p>
+                            </p> */}
                         </div>
                     </div>
 
@@ -327,15 +326,6 @@ export default function Edit() {
                             <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                                 Contact Information
                             </h2>
-                            <span 
-                                className="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white"
-                                style={{
-                                    backgroundColor: '#d81e43',
-                                    boxShadow: '0 2px 4px rgba(216, 30, 67, 0.2)',
-                                }}
-                            >
-                                Read Only
-                            </span>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4">

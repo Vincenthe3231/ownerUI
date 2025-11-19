@@ -153,7 +153,6 @@ export default function OTP({ phoneNumber = '+60 12 345 6789' }) {
                                 onClick={handleBack}
                                 className="absolute top-6 left-6 p-2 rounded-full bg-white/50 text-gray-700 hover:bg-white/80 transition duration-150 z-10"
                             >
-                                <ArrowLeft className="w-5 h-5" />
                             </button>
 
                             {/* CONTENT SECTION */}

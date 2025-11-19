@@ -28,7 +28,7 @@ class QuotationController extends Controller
             [
                 'id' => 2,
                 'quotation_id' => 'QUO-2500002',
-                'property_name' => 'Meta City',
+                'property_name' => 'Vivo Executive Apartment',
                 'unit' => 'A-22-12',
                 'amount' => 22018.00,
                 'status' => 'Unreleased',
@@ -52,13 +52,110 @@ class QuotationController extends Controller
         // Hardcoded data for unreleased quotation
         $quotationData = [
             'quotation_id' => 'QUO-2500002',
-            'property_name' => 'Meta City',
+            'property_name' => 'Vivo Executive Apartment',
             'unit' => 'A-22-12',
             'date' => $quotation->created_at ? $quotation->created_at->format('d M Y') : '06 Nov 2025',
+            'status' => 'Unreleased',
+            'name' => 'Meta City',
+            'unit_type' => 'B',
+            'partition' => 'Yes',
+            'address' => 'Jln Atmosphere Utama 2, 43400, Seri Kembangan, Selangor',
+        ];
+
+        // Hardcoded packages data for unreleased quotation
+        $packages = [
+            [
+                'id' => 1,
+                'name' => 'Single-Sized Bedroom Package',
+                'description' => 'SmartStart Fully Furnished Single-Sized Bedroom',
+                'quantity' => 1,
+                'type' => 'standard',
+                'products' => [
+                    ['sow' => 'Supply & Install', 'product' => 'Wiring for LED Track Lighting, Electrical Outlets & Switches', 'description' => 'Wiring for Soft LED Lighting, Electrical Outlets & Swtiches', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Feature Wall Painting', 'description' => 'Accent Wall - Designer-look Featured Wall', 'quantity' => '1 Lumpsum'],
+                    ['sow' => 'Supply & Install', 'product' => 'Ceiling Fan', 'description' => 'Branded ceiling fan with 6 speed', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Single Size Bedhead & Bedframe', 'description' => 'Single Size Bedhead & Bedframe', 'quantity' => '1 set'],
+                    ['sow' => 'Supply & Install', 'product' => '1 Swing Door Wardrobe', 'description' => '1 Swing Door Wardrobe', 'quantity' => '1 set'],
+                ],
+            ],
+            [
+                'id' => 2,
+                'name' => 'Queen-Sized Bedroom Package',
+                'description' => 'SmartStart Fully Furnished Queen-Sized Bedroom',
+                'quantity' => 1,
+                'type' => 'standard',
+                'products' => [
+                    ['sow' => 'Supply & Install', 'product' => 'Wiring for LED Track Lighting, Electrical Outlets & Switches', 'description' => 'Wiring for Soft LED Lighting, Electrical Outlets & Swtiches', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Feature Wall Painting', 'description' => 'Accent Wall - Designer-look Featured Wall', 'quantity' => '1 Lumpsum'],
+                    ['sow' => 'Supply & Install', 'product' => 'Ceiling Fan', 'description' => 'Branded ceiling fan with 6 speed', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Queen Size Bedhead & Bedframe', 'description' => 'Queen Size Bedhead & Bedframe', 'quantity' => '1 set'],
+                    ['sow' => 'Supply & Install', 'product' => '2 Swing Door Wardrobe', 'description' => '2 Swing Door Wardrobe', 'quantity' => '1 set'],
+                ],
+            ],
+            [
+                'id' => 3,
+                'name' => 'Dining, Foyer & Common Area Package',
+                'description' => 'Fully Furnished Dining and Common Area',
+                'quantity' => 1,
+                'type' => 'standard',
+                'products' => [
+                    ['sow' => 'Supply & Install', 'product' => 'Wiring for LED Track Lighting, Electrical Outlets & Switches', 'description' => 'Wiring for Soft LED Lighting, Electrical Outlets & Swtiches', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Feature Wall Painting', 'description' => 'Accent Wall - Designer-look Featured Wall', 'quantity' => '1 Lumpsum'],
+                    ['sow' => 'Supply & Install', 'product' => 'Ceiling Fan', 'description' => 'Branded ceiling fan with 6 speed', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Dining Table Set', 'description' => 'Dining Table with 4 chairs', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Shoe Cabinet', 'description' => 'Shoe Cabinet', 'quantity' => '1 set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Drying Rack', 'description' => 'Drying Rack', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Designer-Approved Portrait', 'description' => 'Designer-Approved Portrait', 'quantity' => '2 lumpsums'],
+                    ['sow' => 'Supply & Install', 'product' => 'CCTV', 'description' => 'CCTV & Wiring', 'quantity' => '1 Lumpsum'],
+                    ['sow' => 'Supply & Install', 'product' => 'Smart Main Door Lock', 'description' => 'IoT Enabled Smart Main Door Lock with double latches', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'G2 Gateway Hub', 'description' => 'Smart WIFI G2 Gateway Hub', 'quantity' => '1 pc'],
+                ],
+            ],
+            [
+                'id' => 4,
+                'name' => 'Kitchen Package',
+                'description' => 'The kitchen top can be either sintered stone or quartz stone, subject to availability. Both materials offer similar quality and durability.',
+                'quantity' => 1,
+                'type' => 'standard',
+                'products' => [
+                    ['sow' => 'Supply & Install', 'product' => 'Kitchen Cabinet - Top Unit', 'description' => 'Top Unit comes with wall mounted melamine cabinets, soft-close system door hinges', 'quantity' => '1 ft'],
+                    ['sow' => 'Supply & Install', 'product' => 'Kitchen Cabinet - Base Unit', 'description' => 'Base unit comes with sintered/ quartz stone top come with melamine cabinets, soft-close system door hinges, soft-close system drawer track', 'quantity' => '1 Ft'],
+                    ['sow' => 'Supply & Install', 'product' => 'Sink & Build In Slim Hood', 'description' => 'Sink & Build In Slim Hood', 'quantity' => '1 set'],
+                ],
+            ],
+            [
+                'id' => 5,
+                'name' => 'Add-on Option 1: ROI-MAX Package',
+                'description' => 'Earn estimated EXTRA RM14,400 in 24mth by Transforming Living Space into Tenantable Space',
+                'quantity' => 1,
+                'type' => 'optional',
+                'enabled' => false,
+                'products' => [
+                    ['sow' => 'Supply & Install', 'product' => 'Partition Wall', 'description' => 'Drywall partition come with rockwool insulation, knobs, hinges, door frame and wooden door.', 'quantity' => '1 Lumpsum'],
+                    ['sow' => 'Supply & Install', 'product' => 'Wiring for LED Track Lighting, Electrical Outlets & Switches', 'description' => 'Wiring for Soft LED Lighting, Electrical Outlets & Swtiches', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Feature Wall Painting', 'description' => 'Accent Wall - Designer-look Featured Wall', 'quantity' => '1 Lumpsum'],
+                    ['sow' => 'Supply & Install', 'product' => 'Ceiling Fan', 'description' => 'Branded ceiling fan with 6 speed', 'quantity' => '1 Set'],
+                ],
+            ],
+            [
+                'id' => 6,
+                'name' => 'Add-on Option 2: Air Conditioning & Piping Works Package',
+                'description' => '',
+                'quantity' => 1,
+                'type' => 'optional',
+                'enabled' => false,
+                'products' => [
+                    ['sow' => 'Supply & Install', 'product' => 'Air Conditioner', 'description' => '1 hp aircond with 10 ft copper piping - midea/ gree/ hisense', 'quantity' => '1 Set'],
+                    ['sow' => 'Supply & Install', 'product' => 'Extra copper piping (per ft)', 'description' => '[This is estimated price. Actual pricing subject to on-site measurement]', 'quantity' => '1 ft'],
+                    ['sow' => 'Supply & Install', 'product' => 'Relocation of Air Conditioner', 'description' => 'Relocation of aircond to the partitioned room', 'quantity' => '1 Lumpsum'],
+                ],
+            ],
         ];
 
         return Inertia::render('UnreleasedQuotation', [
             'quotation' => $quotationData,
+            'invoices' => [],
+            'packages' => $packages,
         ]);
     }
 

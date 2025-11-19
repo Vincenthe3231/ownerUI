@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\RenovationProgressController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,6 +33,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/quotation/{id}/overview', [QuotationController::class, 'overview'])->name('quotation.overview');
     Route::get('/quotation/{id}/statistics', [QuotationController::class, 'statistics'])->name('quotation.statistics');
     Route::get('/quotation/{id}/unreleased', [QuotationController::class, 'unreleased'])->name('quotation.unreleased');
+    
+    Route::get('/renovation-progress', [RenovationProgressController::class, 'index'])->name('renovation-progress.index');
+    Route::get('/renovation-progress/{id}', [RenovationProgressController::class, 'show'])->name('renovation-progress.show');
 });
 
 require __DIR__.'/auth.php';

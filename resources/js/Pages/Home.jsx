@@ -3,7 +3,6 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
 
 const heroSlides = [
     {
@@ -140,14 +139,8 @@ const currentProjects = [
     // },
 ];
 
-const paddedTitles = ['Current Projects', 'Upcoming Projects'];
-
 export default function Home() {
     const [activeSlide, setActiveSlide] = useState(0);
-    const [isCurrentProjectsOpen, setIsCurrentProjectsOpen] = useState(true);
-    const [isOtherProjectsOpen, setIsOtherProjectsOpen] = useState(true);
-    const [hasCurrentProjectsBeenExpanded, setHasCurrentProjectsBeenExpanded] = useState(false);
-    const [hasUpcomingProjectsBeenExpanded, setHasUpcomingProjectsBeenExpanded] = useState(false);
     const carouselRef = useRef(null);
 
     const slideCount = heroSlides.length;
@@ -268,52 +261,108 @@ export default function Home() {
                         </div>
                     </section>
 
-                    {/* Action Buttons Grid */}
-                    <section className="grid grid-cols-2 gap-4">
-                        {actionButtons.map((button) => (
-                            <Link
-                                key={button.id}
-                                href={button.href}
-                                className="flex flex-col items-center justify-center gap-2 p-6 rounded-3xl bg-white transition-transform hover:scale-105"
-                                style={{
-                                    boxShadow: '0 8px 20px -5px rgba(245, 131, 61, 0.25), 0 4px 6px -2px rgba(245, 131, 61, 0.1)',
-                                }}
-                            >
-                                <div className="text-orange-500">{button.icon}</div>
-                                <span className="text-sm font-semibold text-slate-900 text-center">
-                                    {button.label}
-                                </span>
-                            </Link>
-                        ))}
+                    {/* Section 2: Current Projects & Upcoming Projects */}
+                    <section className="space-y-6">
+                        {/* Current Projects */}
+                        <div className="space-y-3">
+                            <h2 className="text-lg font-semibold text-slate-900 px-1">
+                                Current Projects
+                            </h2>
+                            <div className="grid grid-cols-2 gap-3">
+                                {currentProjects.map((project, index) => {
+                                    const isLast = index === currentProjects.length - 1;
+                                    const isOddCount = currentProjects.length % 2 === 1;
+                                    return (
+                                        <article
+                                            key={project.id}
+                                            className={`group flex flex-col overflow-hidden rounded-3xl bg-white transition-transform hover:scale-105 ${
+                                                isLast && isOddCount ? 'col-span-2 mx-auto max-w-[calc(50%-0.375rem)]' : ''
+                                            }`}
+                                            style={{
+                                                boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
+                                            }}
+                                        >
+                                            <img
+                                                src={project.image}
+                                                alt={project.name}
+                                                className="h-28 w-full object-cover"
+                                                loading="lazy"
+                                            />
+                                            <div className="px-3 pb-3 pt-2">
+                                                <h3 className="text-sm font-semibold text-slate-900">
+                                                    {project.name}
+                                                </h3>
+                                                <p className="text-xs text-slate-500">{project.location}</p>
+                                            </div>
+                                        </article>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Upcoming Projects */}
+                        <div className="space-y-3">
+                            <h2 className="text-lg font-semibold text-slate-900 px-1">
+                                Upcoming Projects
+                            </h2>
+                            <div className="grid grid-cols-2 gap-3">
+                                {upcomingProjects.map((project, index) => {
+                                    const isLast = index === upcomingProjects.length - 1;
+                                    const isOddCount = upcomingProjects.length % 2 === 1;
+                                    return (
+                                        <article
+                                            key={project.id}
+                                            className={`group flex flex-col overflow-hidden rounded-3xl bg-white transition-transform hover:scale-105 ${
+                                                isLast && isOddCount ? 'col-span-2 mx-auto max-w-[calc(50%-0.375rem)]' : ''
+                                            }`}
+                                            style={{
+                                                boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
+                                            }}
+                                        >
+                                            <img
+                                                src={project.image}
+                                                alt={project.name}
+                                                className="h-28 w-full object-cover"
+                                                loading="lazy"
+                                            />
+                                            <div className="px-3 pb-3 pt-2">
+                                                <h3 className="text-sm font-semibold text-slate-900">
+                                                    {project.name}
+                                                </h3>
+                                                <p className="text-xs text-slate-500">{project.location}</p>
+                                            </div>
+                                        </article>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </section>
 
-                    {/* Current Projects Accordion */}
-                    <ProjectAccordion
-                        title="Current Projects"
-                        projects={currentProjects}
-                        isOpen={!isCurrentProjectsOpen}
-                        onToggle={() => {
-                            setIsCurrentProjectsOpen(!isCurrentProjectsOpen);
-                            if (!hasCurrentProjectsBeenExpanded && !isCurrentProjectsOpen) {
-                                setHasCurrentProjectsBeenExpanded(true);
-                            }
-                        }}
-                        showIndicator={!hasCurrentProjectsBeenExpanded}
-                    />
-
-                    {/* Other Projects Accordion */}
-                    <ProjectAccordion
-                        title="Upcoming Projects"
-                        projects={upcomingProjects}
-                        isOpen={!isOtherProjectsOpen}
-                        onToggle={() => {
-                            setIsOtherProjectsOpen(!isOtherProjectsOpen);
-                            if (!hasUpcomingProjectsBeenExpanded && !isOtherProjectsOpen) {
-                                setHasUpcomingProjectsBeenExpanded(true);
-                            }
-                        }}
-                        showIndicator={!hasUpcomingProjectsBeenExpanded}
-                    />
+                    {/* Section 3: Quick Action Buttons */}
+                    <section className="space-y-3">
+                        <h2 className="text-lg font-semibold text-slate-900 px-1">
+                            Quick Actions
+                        </h2>
+                        <div className="grid grid-cols-4 gap-2">
+                            {actionButtons.map((button) => (
+                                <Link
+                                    key={button.id}
+                                    href={button.href}
+                                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-white transition-all hover:scale-105"
+                                    style={{
+                                        boxShadow: '0 8px 20px -5px rgba(245, 131, 61, 0.25), 0 4px 6px -2px rgba(245, 131, 61, 0.1)',
+                                    }}
+                                >
+                                    <div className="text-orange-500 scale-75">
+                                        {button.icon}
+                                    </div>
+                                    <span className="text-[0.65rem] font-semibold text-slate-900 text-center leading-tight">
+                                        {button.label}
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
                 </div>
 
                 <BottomNavigation active="home" />
@@ -322,97 +371,4 @@ export default function Home() {
     );
 }
 
-function ProjectAccordion({ title, projects, isOpen, onToggle, showIndicator = false }) {
-    const contentRef = useRef(null);
-    const [contentHeight, setContentHeight] = useState(0);
-
-    useEffect(() => {
-        if (contentRef.current) {
-            setContentHeight(contentRef.current.scrollHeight);
-        }
-    }, [projects, isOpen]);
-
-    // Recalculate height when accordion opens
-    useEffect(() => {
-        if (isOpen && contentRef.current) {
-            setContentHeight(contentRef.current.scrollHeight);
-        }
-    }, [isOpen]);
-
-    return (
-        <section className="space-y-4">
-            {/* Accordion Header */}
-            <button
-                onClick={onToggle}
-                className="w-full flex items-center justify-between p-0 bg-transparent border-0 cursor-pointer hover:opacity-80 transition-opacity"
-            >
-                <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold text-slate-900">
-                        {title}
-                    </h2>
-                    {showIndicator && (
-                        <span 
-                            className="w-2 h-2 rounded-full -mt-3 -ms-1"
-                            style={{ backgroundColor: '#d81e43' }}
-                            aria-label="Expandable section"
-                        />
-                    )}
-                </div>
-                <div className="flex items-center">
-                    {isOpen ? (
-                        <ChevronDown className="h-5 w-5 text-slate-400 transition-transform" />
-                    ) : (
-                        <ChevronRight className="h-5 w-5 text-slate-400 transition-transform" />
-                    )}
-                </div>
-            </button>
-
-            {/* Accordion Content - Animated Expand/Collapse */}
-            <div
-                className="overflow-hidden transition-all duration-300 ease-in-out"
-                style={{
-                    maxHeight: isOpen ? `${contentHeight}px` : '0px',
-                    opacity: isOpen ? 1 : 0,
-                }}
-            >
-                <div 
-                    ref={contentRef}
-                    className="grid grid-cols-2 gap-3"
-                    style={{
-                        paddingBottom: paddedTitles.includes(title) && isOpen ? '20px' : '0px',
-                    }}
-                >
-                    {projects.map((project, index) => {
-                        const isLast = index === projects.length - 1;
-                        const isOddCount = projects.length % 2 === 1;
-                        return (
-                            <article
-                                key={project.id}
-                                className={`group flex flex-col overflow-hidden rounded-3xl bg-white transition-transform hover:scale-105 ${
-                                    isLast && isOddCount ? 'col-span-2 mx-auto' : ''
-                                }`}
-                                style={{
-                                    boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
-                                }}
-                            >
-                                <img
-                                    src={project.image}
-                                    alt={project.name}
-                                    className="h-28 w-full object-cover"
-                                    loading="lazy"
-                                />
-                                <div className="px-3 pb-3 pt-2">
-                                    <h3 className="text-sm font-semibold text-slate-900">
-                                        {project.name}
-                                    </h3>
-                                    <p className="text-xs text-slate-500">{project.location}</p>
-                                </div>
-                            </article>
-                        );
-                    })}
-                </div>
-            </div>
-        </section>
-    );
-}
 

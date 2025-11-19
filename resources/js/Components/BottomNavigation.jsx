@@ -6,13 +6,14 @@ export default function BottomNavigation({ active = 'quotations' }) {
 
     const homeHref = resolveRoute('home', '/home');
     const quotationsHref = resolveRoute('quotations.index', '/quotations');
+    const renovationProgressHref = resolveRoute('renovation-progress.index', '/renovation-progress');
     const profileHref = resolveRoute('profile.edit', '/profile');
 
     const navItems = [
         { id: 'home', label: 'Home', href: homeHref, icon: 'home' },
         { id: 'chat', label: 'Chat', href: '#', icon: 'chat' },
         { id: 'quotations', label: 'Quotations', href: quotationsHref, icon: 'document' },
-        { id: 'reno-progress', label: 'Reno Progress', href: '#', icon: 'settings', badge: true },
+        { id: 'reno-progress', label: 'Reno Progress', href: renovationProgressHref, icon: 'settings', badge: true },
         { id: 'profile', label: 'Profile', href: profileHref, icon: 'user' },
     ];
 
@@ -256,7 +257,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
 
                     {/* Reno Progress */}
                     <Link
-                        href="#"
+                        href={renovationProgressHref}
                         className={`relative flex flex-col items-center justify-center gap-1 py-2 text-sm transition-all duration-300 ${
                             active === 'reno-progress'
                                 ? '-mt-8'
