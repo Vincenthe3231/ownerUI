@@ -1,7 +1,7 @@
 import BottomNavigation from '@/Components/BottomNavigation';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
 const heroSlides = [
@@ -31,49 +31,6 @@ const heroSlides = [
         title: 'Certified Craftsmanship',
         description:
             'Work with vetted contractors and materials curated for durability and style.',
-    },
-];
-
-const actionButtons = [
-    {
-        id: 1,
-        label: 'View Quotations',
-        icon: (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-        ),
-        href: '/quotations',
-    },
-    {
-        id: 2,
-        label: 'Track Progress',
-        icon: (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-        ),
-        href: '#',
-    },
-    {
-        id: 3,
-        label: 'View Invoices',
-        icon: (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-        ),
-        href: '#',
-    },
-    {
-        id: 4,
-        label: 'Contact Chat',
-        icon: (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-        ),
-        href: '#',
     },
 ];
 
@@ -148,7 +105,7 @@ export default function Home() {
     useEffect(() => {
         const timer = window.setInterval(() => {
             setActiveSlide((prev) => (prev + 1) % slideCount);
-        }, 6000);
+        }, 1500);
 
         return () => window.clearInterval(timer);
     }, [slideCount]);
@@ -166,24 +123,26 @@ export default function Home() {
     return (
         <AuthenticatedLayout header={null} hideNavigation={true}>
             <Head title="Home" />
+            <style>{`
+                @media (max-width: 320px) {
+                    .mobile-single-col {
+                        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+                    }
+                    .mobile-full-width {
+                        grid-column: span 1 / span 1 !important;
+                        max-width: 100% !important;
+                        margin-left: 0 !important;
+                        margin-right: 0 !important;
+                        width: 100% !important;
+                    }
+                }
+            `}</style>
             <main className="min-h-screen bg-slate-50 pb-32">
-                <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6">
+                <div className="mx-auto flex w-full max-w-md flex-col gap-4 sm:gap-6 px-3 sm:px-4 pt-4 sm:pt-6">
                     {/* Logo */}
                     <div className="flex items-center mb-6">
                         <div className="flex items-center">
-                            <div className="w-8 h-8 rounded-md flex items-center justify-center mr-2" style={{ backgroundColor: '#d81e43' }}>
-                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                </svg>
-                            </div>
-                            <div>
-                            <div>
-                                <div className="font-bold text-lg" style={{ color: '#d81e43' }}>RenoXpert</div>
-                                <div className="text-gray-400 text-[0.6rem]">empowered by
-                                    <span className="font-bold" style={{ color: '#3cc0bd' }}>&nbsp;be</span>
-                                    <span className="font-bold" style={{ color: '#f5833d' }}>live</span></div>
-                            </div>
-                            </div>
+                            <ApplicationLogo className="h-8 w-auto mr-2" />
                         </div>
                     </div>
 
@@ -216,17 +175,17 @@ export default function Home() {
                                         <img
                                             src={slide.image}
                                             alt={slide.title}
-                                            className="h-48 w-full object-cover rounded-t-3xl"
+                                            className="h-40 sm:h-48 w-full object-cover rounded-t-3xl"
                                             loading="lazy"
                                         />
-                                        <div className="space-y-1 px-5 pb-5 pt-4">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.4rem] text-rose-500">
+                                        <div className="space-y-1 px-4 sm:px-5 pb-4 sm:pb-5 pt-3 sm:pt-4">
+                                            <p className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2rem] sm:tracking-[0.4rem] text-rose-500">
                                                 {slide.eyebrow}
                                             </p>
-                                            <h2 className="text-2xl font-semibold text-slate-900">
+                                            <h2 className="text-xl sm:text-2xl font-semibold text-slate-900">
                                                 {slide.title}
                                             </h2>
-                                            <p className="text-sm text-slate-600">{slide.description}</p>
+                                            <p className="text-xs sm:text-sm text-slate-600">{slide.description}</p>
                                         </div>
                                     </article>
                                 ))}
@@ -265,10 +224,10 @@ export default function Home() {
                     <section className="space-y-6">
                         {/* Current Projects */}
                         <div className="space-y-3">
-                            <h2 className="text-lg font-semibold text-slate-900 px-1">
+                            <h2 className="text-base sm:text-lg font-semibold text-slate-900 px-1">
                                 Current Projects
                             </h2>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-3 mobile-single-col">
                                 {currentProjects.map((project, index) => {
                                     const isLast = index === currentProjects.length - 1;
                                     const isOddCount = currentProjects.length % 2 === 1;
@@ -276,7 +235,7 @@ export default function Home() {
                                         <article
                                             key={project.id}
                                             className={`group flex flex-col overflow-hidden rounded-3xl bg-white transition-transform hover:scale-105 ${
-                                                isLast && isOddCount ? 'col-span-2 mx-auto max-w-[calc(50%-0.375rem)]' : ''
+                                                isLast && isOddCount ? 'col-span-2 mx-auto max-w-[calc(50%-0.375rem)] mobile-full-width' : ''
                                             }`}
                                             style={{
                                                 boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
@@ -285,7 +244,7 @@ export default function Home() {
                                             <img
                                                 src={project.image}
                                                 alt={project.name}
-                                                className="h-28 w-full object-cover"
+                                                className="h-32 sm:h-28 w-full object-cover"
                                                 loading="lazy"
                                             />
                                             <div className="px-3 pb-3 pt-2">
@@ -302,10 +261,10 @@ export default function Home() {
 
                         {/* Upcoming Projects */}
                         <div className="space-y-3">
-                            <h2 className="text-lg font-semibold text-slate-900 px-1">
+                            <h2 className="text-base sm:text-lg font-semibold text-slate-900 px-1">
                                 Upcoming Projects
                             </h2>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-3 mobile-single-col">
                                 {upcomingProjects.map((project, index) => {
                                     const isLast = index === upcomingProjects.length - 1;
                                     const isOddCount = upcomingProjects.length % 2 === 1;
@@ -313,7 +272,7 @@ export default function Home() {
                                         <article
                                             key={project.id}
                                             className={`group flex flex-col overflow-hidden rounded-3xl bg-white transition-transform hover:scale-105 ${
-                                                isLast && isOddCount ? 'col-span-2 mx-auto max-w-[calc(50%-0.375rem)]' : ''
+                                                isLast && isOddCount ? 'col-span-2 mx-auto max-w-[calc(50%-0.375rem)] mobile-full-width' : ''
                                             }`}
                                             style={{
                                                 boxShadow: '0 8px 20px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1)',
@@ -322,7 +281,7 @@ export default function Home() {
                                             <img
                                                 src={project.image}
                                                 alt={project.name}
-                                                className="h-28 w-full object-cover"
+                                                className="h-32 sm:h-28 w-full object-cover"
                                                 loading="lazy"
                                             />
                                             <div className="px-3 pb-3 pt-2">
@@ -336,31 +295,65 @@ export default function Home() {
                                 })}
                             </div>
                         </div>
-                    </section>
 
-                    {/* Section 3: Quick Action Buttons */}
-                    <section className="space-y-3">
-                        <h2 className="text-lg font-semibold text-slate-900 px-1">
-                            Quick Actions
-                        </h2>
-                        <div className="grid grid-cols-4 gap-2">
-                            {actionButtons.map((button) => (
-                                <Link
-                                    key={button.id}
-                                    href={button.href}
-                                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-white transition-all hover:scale-105"
+                        {/* Our Other Services */}
+                        <div className="space-y-3">
+                            <h2 className="text-base sm:text-lg font-semibold text-slate-900 px-1">
+                                Our Other Services
+                            </h2>
+                            <div className="grid grid-cols-2 gap-3 mobile-single-col">
+                                {/* Spacify - Active Service */}
+                                <a
+                                    href="https://www.spacify.asia"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="group flex flex-col overflow-hidden rounded-3xl transition-transform hover:scale-105 backdrop-blur-md bg-white/80 border border-white/40"
                                     style={{
-                                        boxShadow: '0 8px 20px -5px rgba(245, 131, 61, 0.25), 0 4px 6px -2px rgba(245, 131, 61, 0.1)',
+                                        boxShadow: '0 8px 32px -5px rgba(60, 192, 189, 0.25), 0 4px 6px -2px rgba(60, 192, 189, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)',
+                                        WebkitBackdropFilter: 'blur(12px)',
                                     }}
                                 >
-                                    <div className="text-orange-500 scale-75">
-                                        {button.icon}
+                                    <div className="h-28 w-full bg-gradient-to-br from-gray-50/80 to-cyan-50/80 backdrop-blur-sm flex items-center justify-center relative">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent"></div>
+                                        <img 
+                                            src="https://www.spacify.asia/spacify/general/logo.webp" 
+                                            alt="Spacify" 
+                                            className="w-16 h-16 relative z-10 drop-shadow-sm" 
+                                        />
                                     </div>
-                                    <span className="text-[0.65rem] font-semibold text-slate-900 text-center leading-tight">
-                                        {button.label}
-                                    </span>
-                                </Link>
-                            ))}
+                                    <div className="px-3 pb-3 pt-2 relative z-10 bg-white/20 backdrop-blur-sm">
+                                        <h3 className="text-sm font-semibold text-slate-900 drop-shadow-sm">
+                                            Spacify
+                                        </h3>
+                                        <p className="text-xs text-slate-600 drop-shadow-sm">Property Rental Management</p>
+                                    </div>
+                                </a>
+
+                                {/* Ninja Price - Upcoming */}
+                                <div
+                                    className="group flex flex-col overflow-hidden rounded-3xl transition-transform opacity-90 backdrop-blur-md bg-white/75 border border-white/40"
+                                    style={{
+                                        boxShadow: '0 8px 32px -5px rgba(60, 192, 189, 0.15), 0 4px 6px -2px rgba(60, 192, 189, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.5)',
+                                        WebkitBackdropFilter: 'blur(12px)',
+                                    }}
+                                >
+                                    <div className="h-28 w-full bg-gradient-to-br from-red-400/70 to-red-600/70 backdrop-blur-sm flex items-center justify-center relative">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent"></div>
+                                        <svg className="w-16 h-16 text-white relative z-10 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="absolute top-2 right-2 px-2 py-1 bg-white/95 backdrop-blur-md rounded-full text-[0.65rem] font-semibold text-red-600 border border-white/50 drop-shadow-sm z-10">
+                                            Coming Soon
+                                        </span>
+                                    </div>
+                                    <div className="px-3 pb-3 pt-2 relative z-10 bg-white/20 backdrop-blur-sm">
+                                        <h3 className="text-sm font-semibold text-slate-900 drop-shadow-sm">
+                                            Ninja Price
+                                        </h3>
+                                        <p className="text-xs text-slate-600 drop-shadow-sm">Upcoming</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </div>

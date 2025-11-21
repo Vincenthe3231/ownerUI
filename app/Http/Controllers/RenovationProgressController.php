@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -53,17 +55,31 @@ class RenovationProgressController extends Controller
     public function show(string $id): Response
     {
         // Simulate loading time for database queries
-        sleep(1);
+        sleep(2);
 
-        // Hardcoded detailed project data
+        // Fetch user from database
+        $user = User::findOrFail($id);
+
+        // Get user information (owner details)
+        $ownerName = $user->name ?? null;
+        $ownerPhone = $user->phone ?? null;
+
+        // Use hardcoded values for property info since Order model is not initialized yet
+        $unitId = 'A-30-12';
+        $propertyName = 'Meta City';
+
+        // Hardcoded detailed project data (keeping existing structure, but adding owner data)
         $project = [
             'id' => $id,
-            'unit_id' => 'A-30-12',
-            'property_name' => 'Meta City',
-            'location' => 'Meta City',
+            'unit_id' => $unitId,
+            'property_name' => $propertyName,
+            'location' => $propertyName,
             'status' => 'Pending Agreement for Owner Handover',
             'hasNotification' => true,
             'hasAgreement' => true,
+            // Add owner details from database
+            'owner_name' => $ownerName,
+            'owner_phone' => $ownerPhone,
             'progress_stages' => [
                 [
                     'id' => 1,

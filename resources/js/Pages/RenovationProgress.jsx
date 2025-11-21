@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import BottomNavigation from '@/Components/BottomNavigation';
 import SkeletonLoader from '@/Components/SkeletonLoader';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function RenovationProgress({ projects = [] }) {
     const [isNavigating, setIsNavigating] = useState(false);
@@ -23,45 +24,36 @@ export default function RenovationProgress({ projects = [] }) {
         <>
             <Head title="Renovation Progress" />
 
-            <div className="min-h-screen bg-gray-50 pb-20">
-                <div className="px-4 py-6">
-                    {/* Logo Section */}
-                    <div className="mb-8">
-                        <div className="flex items-center space-x-2 mb-1">
-                            <div className="relative w-8 h-8">
-                                <svg className="w-8 h-8 text-[#d81e43]" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                                </svg>
-                                <span className="absolute inset-0 flex items-center justify-center text-white text-[0.5rem] font-bold leading-none">
-                                    &lt;/&gt;
-                                </span>
-                            </div>
-                            <span className="text-xl font-bold text-[#d81e43]">RenoXpert</span>
+            <div className="min-h-screen bg-gray-100 pb-32">
+                {/* Header */}
+                <div className="bg-white px-4 py-6">
+                    {/* Logo */}
+                    <div className="flex items-center mb-6">
+                        <div className="flex items-center">
+                            <ApplicationLogo className="h-8 w-auto mr-2" />
                         </div>
-                        <p className="text-xs text-gray-500 ml-10">powered by bolive</p>
                     </div>
 
-                    {/* Title Section */}
-                    <div className="mb-6">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Renovation Progress</h1>
-                        <p className="text-sm text-gray-600">Track the status of your renovation projects</p>
-                    </div>
+                    {/* Page Title */}
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Renovation Progress</h1>
+                    <p className="text-gray-500 text-sm">Track the status of your renovation projects</p>
+                </div>
 
-                    {/* Projects List */}
-                    <div className="space-y-4">
-                        {projects.length === 0 ? (
-                            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                                <p className="text-gray-500 text-sm">No renovation projects found.</p>
-                            </div>
-                        ) : (
-                            projects.map((project) => (
-                                <div
-                                    key={project.id}
-                                    onClick={(e) => handleProjectClick(e, project.id)}
-                                    className="block cursor-pointer"
-                                >
-                                    <div className="unreleased-blink rounded-3xl p-4 transition-transform hover:scale-105">
-                                        <div className="flex items-center space-x-4">
+                {/* Projects List */}
+                <div className="px-4 py-6 space-y-4 pb-24">
+                    {projects.length === 0 ? (
+                        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                            <p className="text-gray-500 text-sm">No renovation projects found.</p>
+                        </div>
+                    ) : (
+                        projects.map((project) => (
+                            <div
+                                key={project.id}
+                                onClick={(e) => handleProjectClick(e, project.id)}
+                                className="block cursor-pointer"
+                            >
+                                <div className="unreleased-blink rounded-3xl p-4 transition-transform hover:scale-105">
+                                    <div className="flex items-center space-x-4">
                                         {/* Building Icon with Notification */}
                                         <div className="relative flex-shrink-0">
                                             <div className="w-14 h-14 bg-[#d81e43] rounded-lg flex items-center justify-center">
@@ -96,12 +88,11 @@ export default function RenovationProgress({ projects = [] }) {
                                                 <span className="text-xs font-medium text-gray-700">On Track</span>
                                             </div>
                                         </div>
-                                        </div>
                                     </div>
                                 </div>
-                            ))
-                        )}
-                    </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 

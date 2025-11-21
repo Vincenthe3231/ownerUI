@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import BottomNavigation from '@/Components/BottomNavigation';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function Quotations({ quotations = [] }) {
     return (
@@ -12,17 +13,7 @@ export default function Quotations({ quotations = [] }) {
                     {/* Logo */}
                     <div className="flex items-center mb-6">
                         <div className="flex items-center">
-                            <div className="w-8 h-8 bg-red-600 rounded-md flex items-center justify-center mr-2">
-                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                </svg>
-                            </div>
-                            <div>
-                                <div className="font-bold text-lg" style={{ color: '#d81e43' }}>RenoXpert</div>
-                                <div className="text-gray-400 text-[0.6rem]">empowered by
-                                    <span className="font-bold" style={{ color: '#3cc0bd' }}>&nbsp;be</span>
-                                    <span className="font-bold" style={{ color: '#f5833d' }}>live</span></div>
-                            </div>
+                            <ApplicationLogo className="h-8 w-auto mr-2" />
                         </div>
                     </div>
 

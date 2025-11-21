@@ -1,6 +1,6 @@
 export default function Tabs({ activeTab, onTabChange, tabs = [], className = '' }) {
     return (
-        <div className={`bg-white rounded-2xl shadow-sm ${className}`}>
+        <div className={`bg-white rounded-2xl shadow-sm sticky top-16 z-10 ${className}`}>
             <div className="flex border-b border-gray-200">
                 {tabs.map((tab) => {
                     const isActive = activeTab === tab.id;

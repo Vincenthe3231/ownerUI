@@ -28,9 +28,10 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [acknowledgeRisk, setAcknowledgeRisk] = useState(false);
+    const [showPaymentDetails, setShowPaymentDetails] = useState(false);
     
     const tabs = [
-        { id: 'quotation-order', label: 'Quotation Order' },
+        { id: 'quotation-order', label: <>Quotation <br /> Order</> },
         { id: 'terms', label: 'T&C' },
     ];
     
@@ -225,15 +226,48 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
         );
     };
 
-    // Calculate payment amounts from invoices or use quotation total
-    const totalAmount = invoices.length > 0 
-        ? invoices.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
-        : (quotation?.total_amount || quotation?.amount || 0);
-    const monthlyPayment = installmentMonths === 36
-        ? totalAmount / 36
-        : totalAmount / 60;
-    const initialDownPayment = Math.round(totalAmount / 2);
-    const balancePayment = totalAmount - initialDownPayment;
+    // Calculate payment amounts based on enabled packages
+    const calculateTotalRenovation = () => {
+        // Default Total Renovation
+        return 22959.00;
+    };
+
+    const calculateEnabledAddOnTotal = () => {
+        let total = 0;
+        
+        // Add enabled optional packages with specific prices
+        const enabledOptionalPackages = packages.filter(pkg => 
+            pkg.type === 'optional' && isPackageEnabled(pkg)
+        );
+        
+        enabledOptionalPackages.forEach(pkg => {
+            // Map package names to specific prices
+            if (pkg.name && pkg.name.includes('ROI-MAX')) {
+                total += 8750.00 * (pkg.quantity || 1);
+            } else if (pkg.name && pkg.name.includes('Air Conditioning')) {
+                total += 1575.00 * (pkg.quantity || 1);
+            } else {
+                total += parseFloat(pkg.price || pkg.amount || 0) * (pkg.quantity || 1);
+            }
+        });
+        
+        return total;
+    };
+
+    const totalRenovation = calculateTotalRenovation();
+    const enabledAddOnTotal = calculateEnabledAddOnTotal();
+    const discount = 600.00; // Fixed discount
+    const totalQuotationAmount = totalRenovation + enabledAddOnTotal - discount;
+    
+    // Balance payment = 10% of total quotation amount (covered by tenants)
+    const balancePayment = Math.round(totalQuotationAmount * 0.1 * 100) / 100;
+    // Initial down payment = 90% of total quotation amount
+    const initialDownPayment = Math.round(totalQuotationAmount * 0.9 * 100) / 100;
+    
+    // Get enabled optional packages for display
+    const enabledOptionalPackages = packages.filter(pkg => 
+        pkg.type === 'optional' && isPackageEnabled(pkg)
+    );
 
     // Calculate page title based on active tab
     const pageTitle =
@@ -274,9 +308,10 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                             key={activeTab}
                             className="space-y-4"
                             style={{
-                                transform: `translateX(${slideOffset}%)`,
+                                transform: `translate3d(${slideOffset}%, 0, 0)`,
                                 transition: isTransitioning ? 'transform 0.3s ease-in-out' : 'none',
                                 opacity: isTransitioning && slideOffset !== 0 ? 0.7 : 1,
+                                willChange: isTransitioning ? 'transform' : 'auto',
                             }}
                         >
                             {activeTab === 'quotation-order' && (
@@ -346,6 +381,45 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                         </div>
                                     </div>
 
+                                    {/* Payment Card */}
+                                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm sticky top-20 sm:top-32 z-10 border-b border-[#d81e43]">
+                                        {/* Payment Method Selector */}
+                                        <div className="px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3">
+                                            <div className="flex items-center space-x-1.5 sm:space-x-2 mb-2 sm:mb-3">
+                                                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                                </svg>
+                                                <button
+                                                    onClick={() => setShowPaymentDetails(true)}
+                                                    className="flex items-center justify-between w-full px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <span className="text-gray-700 truncate">RenoNow PayLater</span>
+                                                    <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0 ml-1" />
+                                                </button>
+                                            </div>
+                                            
+                                            {/* Kickstart Message */}
+                                            <div className="mb-2 sm:mb-3">
+                                                <p className="text-sm sm:text-base text-gray-900 leading-tight sm:leading-normal">
+                                                    Kickstart <span className="font-bold text-[#d81e43]">NOW</span> by just paying <span className="font-bold text-[#d81e43]">RM {initialDownPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                </p>
+                                                <p className="text-xs sm:text-sm text-gray-600 mt-1 leading-tight">
+                                                    Remaining RM {balancePayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} covered by tenants
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* View Details Link */}
+                                        <div className="px-3 pb-3 sm:px-4 sm:pb-4 text-right">
+                                            <button
+                                                onClick={() => setShowPaymentDetails(!showPaymentDetails)}
+                                                className="text-xs sm:text-sm text-[#d81e43] hover:text-[#d81e43]/80 underline font-medium"
+                                            >
+                                                {showPaymentDetails ? 'Hide Details' : 'View Details'}
+                                            </button>
+                                        </div>
+                                    </div>
+
                                     {/* Packages Header */}
                                     <div className="flex items-center space-x-2 mb-4">
                                         <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -400,7 +474,7 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                                 return (
                                                     <div
                                                         key={pkg.id}
-                                                        className="bg-white rounded-lg shadow-sm overflow-hidden mb-4 last:mb-0 hover:shadow-md transition-shadow"
+                                                        className={`bg-white rounded-lg shadow-sm overflow-hidden mb-4 last:mb-0 hover:shadow-md transition-shadow ${isEnabled ? 'border-2 border-[#d81e43]' : 'border border-gray-200'}`}
                                                     >
                                                         <div className="p-4">
                                                             <div className="flex items-start justify-between mb-3">
@@ -468,7 +542,7 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setActiveTab('terms')}
-                                                                className="text-blue-600 hover:text-blue-800 underline"
+                                                                className="text-[#d81e43] hover:text-[#d81e43]/80 underline"
                                                             >
                                                                 Terms and Conditions
                                                             </button>
@@ -515,6 +589,7 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
 
                             {activeTab === 'terms' && (
                                 <div className="bg-white rounded-lg shadow-sm p-4">
+                                    
                                     <p className="text-gray-600">Terms & Conditions content will be displayed here.</p>
                                 </div>
                             )}
@@ -525,6 +600,133 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
 
             {/* Bottom Navigation */}
             <BottomNavigation active="quotations" />
+
+            {/* Payment Details Bottom Sheet */}
+            <BottomSheet
+                show={showPaymentDetails}
+                onClose={() => setShowPaymentDetails(false)}
+                title="Payment Details"
+                lockScroll={false}
+            >
+                <div className="p-4 space-y-6">
+                    {/* Total Renovation */}
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <div className="text-base font-semibold text-gray-900">Total Renovation:</div>
+                        <div className="text-base font-semibold text-gray-900">
+                            RM {totalRenovation.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                    </div>
+
+                    {/* Enabled Add-on Packages Total */}
+                    {enabledAddOnTotal > 0 && (
+                        <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                            <div className="text-base font-semibold text-gray-900">Total Enabled Add-on Packages:</div>
+                            <div className="text-base font-semibold text-gray-900">
+                                RM {enabledAddOnTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Discount */}
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <div className="text-lg font-extrabold text-green-800">Discount:</div>
+                        <div className="text-lg font-extrabold text-green-800">
+                            - RM {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                    </div>
+
+                    {/* Total Quotation Amount */}
+                    <div className="flex justify-between items-center pb-3 border-b-2 border-gray-300">
+                        <div className="text-base font-semibold text-gray-900">Total Quotation Amount:</div>
+                        <div className="text-base font-semibold text-gray-900">
+                            RM {totalQuotationAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                    </div>
+
+                    {/* Payment Terms */}
+                    <div className="flex justify-between items-start pb-3 border-b border-gray-200">
+                        <div>
+                            <div className="text-base font-semibold text-gray-900 mb-1">Payment Terms:</div>
+                            <div className="flex items-center text-xs text-gray-500">
+                                <span>(Terms & Conditions)</span>
+                                <button
+                                    onClick={() => setShowTermsModal(true)}
+                                    className="ml-1"
+                                >
+                                    <svg
+                                        className="w-4 h-4 text-yellow-500"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="text-base font-semibold text-gray-900">RenoNow PayLater</div>
+                    </div>
+
+                    {/* Initial Down Payment */}
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <div className="text-base font-semibold text-gray-900">Initial Down Payment:</div>
+                        <div className="text-base font-semibold text-gray-900">
+                            RM {initialDownPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                    </div>
+
+                    {/* Balance Payment */}
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <div className="text-base font-semibold text-gray-900">Balance Payment:</div>
+                        <div className="text-base font-semibold text-gray-900">
+                            RM {balancePayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                    </div>
+                    <div className="text-sm text-gray-600 -mt-3 text-right">Pay through RPM</div>
+
+                    {/* Enabled Optional Packages */}
+                    {enabledOptionalPackages.length > 0 && (
+                        <div className="pt-3">
+                            <h3 className="text-base font-semibold text-gray-900 mb-3">Enabled Add-on Packages:</h3>
+                            <div className="space-y-3">
+                                {enabledOptionalPackages.map((pkg) => {
+                                    // Calculate price based on package name
+                                    let packagePrice = 0;
+                                    if (pkg.name && pkg.name.includes('ROI-MAX')) {
+                                        packagePrice = 8750.00 * (pkg.quantity || 1);
+                                    } else if (pkg.name && pkg.name.includes('Air Conditioning')) {
+                                        packagePrice = 1575.00 * (pkg.quantity || 1);
+                                    } else {
+                                        packagePrice = parseFloat(pkg.price || pkg.amount || 0) * (pkg.quantity || 1);
+                                    }
+                                    
+                                    return (
+                                        <div key={pkg.id} className="bg-gray-50 rounded-lg p-3 border-2 border-[#d81e43]">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex-1">
+                                                    <div className="text-sm font-semibold text-gray-900">{pkg.name}</div>
+                                                    {pkg.description && (
+                                                        <div className="text-xs text-gray-600 mt-1">{pkg.description}</div>
+                                                    )}
+                                                </div>
+                                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded ml-2">
+                                                    x{pkg.quantity}
+                                                </span>
+                                            </div>
+                                            <div className="text-sm text-gray-700">
+                                                RM {packagePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </BottomSheet>
 
             {/* Terms & Conditions Modal */}
             <Modal show={showTermsModal} onClose={() => setShowTermsModal(false)} maxWidth="2xl">

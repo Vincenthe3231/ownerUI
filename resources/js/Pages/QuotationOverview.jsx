@@ -308,9 +308,10 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             key={activeTab}
                             className="space-y-4"
                             style={{
-                                transform: `translateX(${slideOffset}%)`,
+                                transform: `translate3d(${slideOffset}%, 0, 0)`,
                                 transition: isTransitioning ? 'transform 0.3s ease-in-out' : 'none',
                                 opacity: isTransitioning && slideOffset !== 0 ? 0.7 : 1,
+                                willChange: isTransitioning ? 'transform' : 'auto',
                             }}
                         >
                     {activeTab === 'overview' && (
@@ -596,7 +597,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                 {isPaymentInvoicesExpanded && (
                                     <div className="px-4 pb-2 space-y-4 border-t border-gray-100">
                                         {/* Filter Chips */}
-                                        <div className="flex flex-wrap gap-2 pt-3 pb-2">
+                                        <div className="flex flex-wrap gap-2 pt-3 pb-2 sticky top-32 z-10 bg-white">
                                             <button
                                                 type="button"
                                                 onClick={(e) => {
@@ -617,7 +618,8 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    setInvoiceFilter('paid');
+                                                    // Toggle: if already active, reset to 'all', otherwise set to 'paid'
+                                                    setInvoiceFilter(invoiceFilter === 'paid' ? 'all' : 'paid');
                                                 }}
                                                 className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
                                                     invoiceFilter === 'paid'
@@ -632,7 +634,8 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    setInvoiceFilter('overdue');
+                                                    // Toggle: if already active, reset to 'all', otherwise set to 'overdue'
+                                                    setInvoiceFilter(invoiceFilter === 'overdue' ? 'all' : 'overdue');
                                                 }}
                                                 className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
                                                     invoiceFilter === 'overdue'
@@ -647,12 +650,13 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    setInvoiceFilter('top5');
+                                                    // Toggle: if already active, reset to 'all', otherwise set to 'top5'
+                                                    setInvoiceFilter(invoiceFilter === 'top5' ? 'all' : 'top5');
                                                 }}
                                                 className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
                                                     invoiceFilter === 'top5'
                                                         ? 'bg-[#3cc0bd] text-white'
-                                                        : 'bg-[#3cc0bd]/50 text-white hover:bg-[#3cc0bd] hover:text-white'
+                                                        : 'bg-[#3cc0bd]/50 text-white hover:bg-[#3cc0bd]/50 hover:text-white'
                                                 }`}
                                             >
                                                 Top 5
