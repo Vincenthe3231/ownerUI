@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
 import {
     Dialog,
     Transition,
     TransitionChild,
 } from '@headlessui/react';
 import { X } from 'lucide-react';
+import { useBodyScrollLock } from './BottomSheet/useBodyScrollLock';
+import { useSwipeDown } from './BottomSheet/useSwipeDown';
+import { BOTTOM_SHEET_CONFIG } from './BottomSheet/constants';
 
 export default function BottomSheet({
     show = false,
@@ -13,62 +15,14 @@ export default function BottomSheet({
     children,
     lockScroll = true,
 }) {
-    const [isDragging, setIsDragging] = useState(false);
-    const [startY, setStartY] = useState(0);
-    const [currentY, setCurrentY] = useState(0);
-    const sheetRef = useRef(null);
-    const dragThreshold = 50; // Minimum drag distance to trigger close
+    // Lock body scroll when sheet is open
+    useBodyScrollLock(show && lockScroll);
 
-    // Lock/unlock body scroll
-    useEffect(() => {
-        if (show && lockScroll) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [show, lockScroll]);
-
-    // Handle touch start for swipe down (only from header/drag handle)
-    const handleTouchStart = (e) => {
-        setIsDragging(true);
-        setStartY(e.touches[0].clientY);
-        setCurrentY(e.touches[0].clientY);
-    };
-
-    // Handle touch move
-    const handleTouchMove = (e) => {
-        if (!isDragging) return;
-        const newY = e.touches[0].clientY;
-        setCurrentY(newY);
-        
-        // Only allow downward drag
-        if (newY > startY) {
-            e.preventDefault();
-        }
-    };
-
-    // Handle touch end
-    const handleTouchEnd = () => {
-        if (!isDragging) return;
-        
-        const dragDistance = currentY - startY;
-        
-        if (dragDistance > dragThreshold) {
-            onClose();
-        }
-        
-        setIsDragging(false);
-        setStartY(0);
-        setCurrentY(0);
-    };
-
-    // Calculate transform based on drag
-    const dragTransform = isDragging && currentY > startY 
-        ? `translateY(${Math.max(0, currentY - startY)}px)` 
-        : 'translateY(0)';
+    // Handle swipe down gesture
+    const { handleTouchStart, handleTouchMove, handleTouchEnd, dragTransform } = useSwipeDown(
+        onClose,
+        BOTTOM_SHEET_CONFIG.DRAG_THRESHOLD
+    );
 
     return (
         <Transition show={show} leave="duration-300">
@@ -87,7 +41,7 @@ export default function BottomSheet({
                     leaveTo="opacity-0"
                 >
                     <div 
-                        className="fixed inset-0 bg-black/50"
+                        className={`fixed inset-0 ${BOTTOM_SHEET_CONFIG.BACKDROP_OPACITY}`}
                         onClick={onClose}
                     />
                 </TransitionChild>
@@ -102,9 +56,11 @@ export default function BottomSheet({
                     leaveTo="translate-y-full"
                 >
                     <Dialog.Panel
-                        ref={sheetRef}
-                        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl max-h-[90vh] flex flex-col"
-                        style={{ transform: dragTransform }}
+                        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl flex flex-col"
+                        style={{ 
+                            transform: dragTransform,
+                            maxHeight: BOTTOM_SHEET_CONFIG.MAX_HEIGHT,
+                        }}
                     >
                         {/* Drag Handle */}
                         <div 

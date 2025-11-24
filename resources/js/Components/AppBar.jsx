@@ -1,17 +1,27 @@
 import { Link } from '@inertiajs/react';
+import { useAppBarHeight } from './AppBar/useAppBarHeight';
+import { appBarStyles } from './AppBar/styles';
 
-export default function AppBar({ 
-    title, 
+export default function AppBar({
+    title,
     backHref = '/quotations',
-    backLabel = 'Go back'
+    backLabel = 'Go back',
+    trackHeight = true, // Make height tracking optional
 }) {
+    const appBarRef = useAppBarHeight(trackHeight);
+
     return (
         <div className="bg-[#d81e43] rounded-lg shadow-sm">
-            <div className="fixed top-0 left-0 w-full bg-[#d81e43] text-white shadow-lg z-50 pt-4 pb-6 px-4">
-                <div className="flex items-center">
+            <div
+                ref={appBarRef}
+                className="fixed top-0 left-0 w-full bg-[#d81e43] text-white shadow-lg z-50"
+                style={appBarStyles.container}
+            >
+                <div className="flex items-center h-full">
                     <Link
                         href={backHref}
-                        className="mr-3 text-white hover:text-gray-900"
+                        className="text-white hover:text-gray-900 flex-shrink-0"
+                        style={appBarStyles.backButton}
                         aria-label={backLabel}
                     >
                         <svg
@@ -19,6 +29,7 @@ export default function AppBar({
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            style={appBarStyles.icon}
                         >
                             <path
                                 strokeLinecap="round"
@@ -28,7 +39,10 @@ export default function AppBar({
                             />
                         </svg>
                     </Link>
-                    <h1 className="text-xl font-semibold text-white">
+                    <h1
+                        className="text-xl font-semibold text-white truncate"
+                        style={appBarStyles.title}
+                    >
                         {title}
                     </h1>
                 </div>
@@ -36,4 +50,3 @@ export default function AppBar({
         </div>
     );
 }
-

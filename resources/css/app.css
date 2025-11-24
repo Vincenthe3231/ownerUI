@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Initialize AppBar height CSS variable for responsive window resizing */
+:root {
+    --app-bar-height: 64px; /* Default fallback height */
+}
+
 /* resources/css/app.css (or wherever you keep custom utilities) */
 .scrollbar-hide::-webkit-scrollbar {
     display: none;

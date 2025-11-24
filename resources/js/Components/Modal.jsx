@@ -4,6 +4,7 @@ import {
     Transition,
     TransitionChild,
 } from '@headlessui/react';
+import { getMaxWidthClass } from './Modal/constants';
 
 export default function Modal({
     children,
@@ -18,13 +19,7 @@ export default function Modal({
         }
     };
 
-    const maxWidthClass = {
-        sm: 'sm:max-w-sm',
-        md: 'sm:max-w-md',
-        lg: 'sm:max-w-lg',
-        xl: 'sm:max-w-xl',
-        '2xl': 'sm:max-w-2xl',
-    }[maxWidth];
+    const maxWidthClass = getMaxWidthClass(maxWidth);
 
     return (
         <Transition show={show} leave="duration-200">

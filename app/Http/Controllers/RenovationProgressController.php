@@ -55,7 +55,7 @@ class RenovationProgressController extends Controller
     public function show(string $id): Response
     {
         // Simulate loading time for database queries
-        sleep(2);
+        sleep(1);
 
         // Fetch user from database
         $user = User::findOrFail($id);

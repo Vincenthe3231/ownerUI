@@ -11,6 +11,7 @@ export default function RenovationProgressDetail({ project, loading = false }) {
     const [activeFilter, setActiveFilter] = useState('r1');
     const [isProjectInfoExpanded, setIsProjectInfoExpanded] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [appBarHeight, setAppBarHeight] = useState(64); // Default height
     const tabsContainerRef = useRef(null);
     const searchInputRef = useRef(null);
 
@@ -22,6 +23,47 @@ export default function RenovationProgressDetail({ project, loading = false }) {
         }, 2000);
 
         return () => clearTimeout(timer);
+    }, []);
+
+    // Update AppBar height from CSS variable and handle window resize
+    useEffect(() => {
+        const updateAppBarHeight = () => {
+            // Get the CSS variable value, with fallback
+            const cssValue = getComputedStyle(document.documentElement).getPropertyValue('--app-bar-height').trim();
+            const height = cssValue ? parseFloat(cssValue) : 64;
+            setAppBarHeight(height);
+        };
+
+        // Initial calculation - wait a bit for AppBar to mount
+        const initialTimeout = setTimeout(updateAppBarHeight, 100);
+
+        // Update on window resize with debouncing
+        let resizeTimeout;
+        const handleResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateAppBarHeight, 50);
+        };
+        window.addEventListener('resize', handleResize);
+        
+        // Also listen for CSS variable changes
+        const observer = new MutationObserver(() => {
+            updateAppBarHeight();
+        });
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['style'],
+        });
+
+        // Periodic check to ensure sync (in case of timing issues)
+        const syncInterval = setInterval(updateAppBarHeight, 500);
+
+        return () => {
+            clearTimeout(initialTimeout);
+            clearTimeout(resizeTimeout);
+            window.removeEventListener('resize', handleResize);
+            observer.disconnect();
+            clearInterval(syncInterval);
+        };
     }, []);
 
     // Check if tabs container is scrollable and show sliding hint (similar to hero slides)
@@ -278,7 +320,13 @@ export default function RenovationProgressDetail({ project, loading = false }) {
 
             <div className="min-h-screen bg-gray-50 pb-20">
                 {/* Sticky Navigation Tabs with Glassmorphism */}
-                <div className="sticky top-16 z-40 backdrop-blur-md bg-white/60 shadow-sm">
+                <div 
+                    className="sticky z-40 backdrop-blur-md bg-white/60 shadow-sm"
+                    style={{
+                        top: `${appBarHeight}px`,
+                        transition: 'top 0.2s ease-in-out',
+                    }}
+                >
                     <div className="px-2 pb-4">
                         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
                             <div 
@@ -287,6 +335,8 @@ export default function RenovationProgressDetail({ project, loading = false }) {
                                 style={{
                                     scrollSnapType: 'x mandatory',
                                     WebkitOverflowScrolling: 'touch',
+                                    width: '100%',
+                                    maxWidth: '100vw',
                                 }}
                             >
                                 {tabs.map((tab) => {
@@ -311,11 +361,27 @@ export default function RenovationProgressDetail({ project, loading = false }) {
                                             style={{
                                                 scrollSnapAlign: 'start',
                                                 scrollSnapStop: 'always',
+                                                minWidth: 'fit-content',
+                                                paddingLeft: 'clamp(0.75rem, 2vw, 1rem)',
+                                                paddingRight: 'clamp(0.75rem, 2vw, 1rem)',
+                                                fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
                                             }}
                                         >
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isActive ? 'bg-[#d81e43] text-white' : 'bg-gray-100 text-gray-600'
-                                                }`}>
-                                                <Icon className="w-4 h-4" />
+                                            <div 
+                                                className={`rounded-full flex items-center justify-center transition-colors ${isActive ? 'bg-[#d81e43] text-white' : 'bg-gray-100 text-gray-600'
+                                                }`}
+                                                style={{
+                                                    width: 'clamp(1.75rem, 5vw, 2rem)',
+                                                    height: 'clamp(1.75rem, 5vw, 2rem)',
+                                                }}
+                                            >
+                                                <Icon 
+                                                    className="w-4 h-4"
+                                                    style={{
+                                                        width: 'clamp(0.875rem, 3vw, 1rem)',
+                                                        height: 'clamp(0.875rem, 3vw, 1rem)',
+                                                    }}
+                                                />
                                             </div>
                                             <span>{tab.label}</span>
                                         </button>
@@ -326,7 +392,13 @@ export default function RenovationProgressDetail({ project, loading = false }) {
                     </div>
                 </div>
 
-                <div className="px-4 py-4 space-y-4 my-12">
+                <div 
+                    className="px-4 py-4 space-y-4"
+                    style={{
+                        paddingTop: `${appBarHeight + 16}px`,
+                        transition: 'padding-top 0.2s ease-in-out',
+                    }}
+                >
                     <AppBar title="Reno Progress" backHref="/renovation-progress" />
 
                     {/* Project Information Card */}
@@ -461,7 +533,13 @@ export default function RenovationProgressDetail({ project, loading = false }) {
 
                     {/* Filter Chips */}
                     {filterChips.length > 0 && (
-                        <div className="flex gap-2 overflow-x-auto scrollbar-hide py-2 sticky top-40 z-40 bg-white shadow-sm rounded-sm">
+                        <div 
+                            className="flex gap-2 overflow-x-auto scrollbar-hide py-2 sticky z-40 bg-white shadow-sm rounded-sm"
+                            style={{
+                                top: `${appBarHeight + 80}px`, // AppBar height + tabs height
+                                transition: 'top 0.2s ease-in-out',
+                            }}
+                        >
                             {filterChips.map((chip) => (
                                 <button
                                     key={chip}
