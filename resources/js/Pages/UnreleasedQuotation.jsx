@@ -282,7 +282,21 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
             <Head title={pageTitle} />
 
             <div 
-                className="min-h-screen bg-gray-100 pb-20"
+                className="min-h-screen pb-20 w-full"
+                style={{
+                    background: `
+                        linear-gradient(to bottom, rgba(243, 244, 246, 0.9), transparent),
+                        linear-gradient(to top left, rgba(209, 213, 219, 0.7), transparent),
+                        linear-gradient(to top right, rgba(229, 231, 235, 0.8), transparent)
+                    `,
+                    backgroundBlendMode: 'screen',
+                    backgroundAttachment: 'fixed',
+                    backgroundColor: '#F3F4F6',
+                    minHeight: '100vh',
+                    overflowX: 'clip',
+                    maxWidth: '100vw',
+                    position: 'relative',
+                }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -302,22 +316,43 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                     {/* Content with swipe support */}
                     <div 
                         ref={contentRef}
-                        className="relative"
+                        className="relative w-full"
+                        style={{
+                            overflowX: 'clip',
+                            maxWidth: '100%',
+                            contain: 'style',
+                        }}
                     >
                         <div 
                             key={activeTab}
-                            className="space-y-4"
+                            className="space-y-4 w-full"
                             style={{
-                                transform: `translate3d(${slideOffset}%, 0, 0)`,
-                                transition: isTransitioning ? 'transform 0.3s ease-in-out' : 'none',
-                                opacity: isTransitioning && slideOffset !== 0 ? 0.7 : 1,
-                                willChange: isTransitioning ? 'transform' : 'auto',
+                                ...(isTransitioning && slideOffset !== 0 ? {
+                                    transform: `translate3d(${slideOffset}%, 0, 0)`,
+                                    transition: 'transform 0.3s ease-in-out',
+                                    opacity: 0.7,
+                                    willChange: 'transform',
+                                } : {
+                                    transform: 'none',
+                                    transition: 'none',
+                                    opacity: 1,
+                                    willChange: 'auto',
+                                }),
+                                maxWidth: '100%',
+                                boxSizing: 'border-box',
                             }}
                         >
                             {activeTab === 'quotation-order' && (
                                 <div className="space-y-4">
                                     {/* Quote Details Card - Expandable */}
-                                    <div className="bg-white rounded-lg shadow-sm">
+                                    <div 
+                                        className="bg-white rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                        style={{
+                                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+                                            border: '1px solid rgba(0, 0, 0, 0.08)',
+                                            transformOrigin: 'center',
+                                        }}
+                                    >
                                         <button
                                             onClick={() => setIsQuoteDetailsExpanded(!isQuoteDetailsExpanded)}
                                             className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
@@ -382,7 +417,24 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                     </div>
 
                                     {/* Payment Card */}
-                                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm sticky top-20 sm:top-32 z-10 border-b border-[#d81e43]">
+                                    <div 
+                                        className="rounded-xl sm:rounded-2xl transition-transform duration-100 ease-in-out hover:scale-105"
+                                        style={{
+                                            position: 'sticky',
+                                            top: 'clamp(130px, 20vw, 130px)',
+                                            zIndex: 10,
+                                            backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                                            backdropFilter: 'blur(12px)',
+                                            WebkitBackdropFilter: 'blur(12px)',
+                                            border: '1px solid rgba(255, 255, 255, 0.6)',
+                                            boxShadow: `
+                                                0 4px 8px rgba(0, 0, 0, 0.2),
+                                                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                                                0 0 0 1px rgba(0, 0, 0, 0.05)
+                                            `,
+                                            transformOrigin: 'center',
+                                        }}
+                                    >
                                         {/* Payment Method Selector */}
                                         <div className="px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3">
                                             <div className="flex items-center space-x-1.5 sm:space-x-2 mb-2 sm:mb-3">
@@ -430,7 +482,15 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
 
                                     {/* Standard Packages */}
                                     {packages && packages.filter(pkg => pkg.type === 'standard').map((pkg) => (
-                                        <div key={pkg.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                                        <div 
+                                            key={pkg.id} 
+                                            className="bg-white rounded-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                            style={{
+                                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                border: '1px solid rgba(0, 0, 0, 0.08)',
+                                                transformOrigin: 'center',
+                                            }}
+                                        >
                                             <div className="p-4">
                                                 <div className="flex items-start justify-between mb-3">
                                                     <div className="flex-1">
@@ -459,7 +519,14 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
 
                                     {/* Optional Add-On Packages */}
                                     {packages && packages.filter(pkg => pkg.type === 'optional').length > 0 && (
-                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <div 
+                                            className="bg-blue-50 rounded-lg p-4 transition-transform duration-300 ease-in-out hover:scale-105"
+                                            style={{
+                                                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                                transformOrigin: 'center',
+                                            }}
+                                        >
                                             <div className="flex items-center space-x-2 mb-4">
                                                 <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -474,7 +541,14 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                                 return (
                                                     <div
                                                         key={pkg.id}
-                                                        className={`bg-white rounded-lg shadow-sm overflow-hidden mb-4 last:mb-0 hover:shadow-md transition-shadow ${isEnabled ? 'border-2 border-[#d81e43]' : 'border border-gray-200'}`}
+                                                        className={`bg-white rounded-lg overflow-hidden mb-4 last:mb-0 transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer ${isEnabled ? '' : ''}`}
+                                                        style={{
+                                                            boxShadow: isEnabled 
+                                                                ? '0 4px 16px rgba(216, 30, 67, 0.2), 0 2px 4px rgba(216, 30, 67, 0.15)'
+                                                                : '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                            border: isEnabled ? '2px solid #d81e43' : '1px solid rgba(0, 0, 0, 0.08)',
+                                                            transformOrigin: 'center',
+                                                        }}
                                                     >
                                                         <div className="p-4">
                                                             <div className="flex items-start justify-between mb-3">
@@ -527,7 +601,14 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                             })}
 
                                             {/* Agreement Section */}
-                                            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mt-6">
+                                            <div 
+                                                className="bg-white rounded-lg p-4 mt-6 transition-transform duration-300 ease-in-out hover:scale-105"
+                                                style={{
+                                                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                                                    transformOrigin: 'center',
+                                                }}
+                                            >
                                                 <div className="space-y-4">
                                                     {/* Terms and Conditions Checkbox */}
                                                     <label className="flex items-start space-x-3 cursor-pointer">
@@ -588,7 +669,14 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                             )}
 
                             {activeTab === 'terms' && (
-                                <div className="bg-white rounded-lg shadow-sm p-4">
+                                <div 
+                                    className="bg-white rounded-lg p-4 transition-transform duration-300 ease-in-out hover:scale-105"
+                                    style={{
+                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                                        transformOrigin: 'center',
+                                    }}
+                                >
                                     
                                     <p className="text-gray-600">Terms & Conditions content will be displayed here.</p>
                                 </div>

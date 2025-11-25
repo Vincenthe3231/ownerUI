@@ -282,7 +282,21 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
             <Head title={pageTitle} />
 
             <div 
-                className="min-h-screen bg-gray-100 pb-20"
+                className="min-h-screen pb-20 w-full"
+                style={{
+                    background: `
+                        linear-gradient(to bottom, rgba(243, 244, 246, 0.9), transparent),
+                        linear-gradient(to top left, rgba(209, 213, 219, 0.7), transparent),
+                        linear-gradient(to top right, rgba(229, 231, 235, 0.8), transparent)
+                    `,
+                    backgroundBlendMode: 'screen',
+                    backgroundAttachment: 'fixed',
+                    backgroundColor: '#F3F4F6',
+                    minHeight: '100vh',
+                    overflowX: 'clip',
+                    maxWidth: '100vw',
+                    position: 'relative',
+                }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -302,22 +316,43 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                     {/* Content with swipe support */}
                     <div 
                         ref={contentRef}
-                        className="relative"
+                        className="relative w-full"
+                        style={{
+                            overflowX: 'clip',
+                            maxWidth: '100%',
+                            contain: 'style',
+                        }}
                     >
                         <div 
                             key={activeTab}
-                            className="space-y-4"
+                            className="space-y-4 w-full"
                             style={{
-                                transform: `translate3d(${slideOffset}%, 0, 0)`,
-                                transition: isTransitioning ? 'transform 0.3s ease-in-out' : 'none',
-                                opacity: isTransitioning && slideOffset !== 0 ? 0.7 : 1,
-                                willChange: isTransitioning ? 'transform' : 'auto',
+                                ...(isTransitioning && slideOffset !== 0 ? {
+                                    transform: `translate3d(${slideOffset}%, 0, 0)`,
+                                    transition: 'transform 0.3s ease-in-out',
+                                    opacity: 0.7,
+                                    willChange: 'transform',
+                                } : {
+                                    transform: 'none',
+                                    transition: 'none',
+                                    opacity: 1,
+                                    willChange: 'auto',
+                                }),
+                                maxWidth: '100%',
+                                boxSizing: 'border-box',
                             }}
                         >
                     {activeTab === 'overview' && (
                         <>
                             {/* 3. Invoice Status Chips Section Card */}
-                            <div className="bg-white rounded-lg shadow-sm">
+                            <div 
+                                className="bg-white rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"
+                                style={{
+                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+                                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                                    transformOrigin: 'center',
+                                }}
+                            >
                                 <div className="px-4 py-4">
                                     <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                                         <div className="flex flex-wrap items-center gap-2">
@@ -356,7 +391,14 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             </div>
 
                             {/* Quote Details Card - Expandable */}
-                            <div className="bg-white rounded-lg shadow-sm">
+                            <div 
+                                className="bg-white rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                style={{
+                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+                                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                                    transformOrigin: 'center',
+                                }}
+                            >
                                 <button
                                     onClick={() => setIsQuoteDetailsExpanded(!isQuoteDetailsExpanded)}
                                     className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
@@ -431,7 +473,14 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             </div>
 
                             {/* Payment Summary Card - Expandable */}
-                            <div className="bg-white rounded-lg shadow-sm">
+                            <div 
+                                className="bg-white rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"
+                                style={{
+                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+                                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                                    transformOrigin: 'center',
+                                }}
+                            >
                                 <div className="p-4">
                                     {/* Payment Method - Disabled */}
                                     <div className="mb-3">
@@ -562,7 +611,14 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             </div>
 
                             {/* Payment Invoices Card - Accordion */}
-                            <div className="bg-white rounded-lg shadow-sm">
+                            <div 
+                                className="bg-white rounded-lg"
+                                style={{
+                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+                                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                                    transformOrigin: 'center',
+                                }}
+                            >
                                 <button
                                     onClick={() => {
                                         setIsPaymentInvoicesExpanded(!isPaymentInvoicesExpanded);
@@ -570,7 +626,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                             setHasPaymentInvoicesBeenExpanded(true);
                                         }
                                     }}
-                                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors mb-10"
+                                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
                                 >
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-lg font-semibold text-gray-900">
@@ -597,7 +653,19 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                 {isPaymentInvoicesExpanded && (
                                     <div className="px-4 pb-2 space-y-4 border-t border-gray-100">
                                         {/* Filter Chips */}
-                                        <div className="flex flex-wrap gap-2 pt-3 pb-2 sticky top-32 z-10 bg-white">
+                                        <div 
+                                            className="flex flex-wrap gap-2 pt-3 pb-2 w-full"
+                                            style={{
+                                                position: 'sticky',
+                                                top: '130px',
+                                                zIndex: 10,
+                                                isolation: 'isolate',
+                                                backgroundColor: 'rgba(255, 255, 255, 0.80)',
+                                                backdropFilter: 'blur(12px)',
+                                                WebkitBackdropFilter: 'blur(12px)',
+                                                border: '1px solid rgba(255, 255, 255, 0.6)',
+                                            }}
+                                        >
                                             <button
                                                 type="button"
                                                 onClick={(e) => {
@@ -686,7 +754,12 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                 filteredInvoices.map((invoice, index) => (
                                                 <div
                                                     key={index}
-                                                    className="bg-gray-50 border border-gray-100 rounded-lg p-4 shadow-sm"
+                                                    className="bg-gray-50 rounded-lg p-4 transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                                    style={{
+                                                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+                                                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                                                        transformOrigin: 'center',
+                                                    }}
                                                 >
                                                     <div className="flex items-start space-x-3">
                                                         <div className="flex-shrink-0 mt-1">
@@ -773,7 +846,15 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
 
                             {/* Standard Packages */}
                             {packages.filter(pkg => pkg.type === 'standard').map((pkg) => (
-                                <div key={pkg.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                                <div 
+                                    key={pkg.id} 
+                                    className="bg-white rounded-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                    style={{
+                                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                                        transformOrigin: 'center',
+                                    }}
+                                >
                                     <div className="p-4">
                                         <div className="flex items-start justify-between mb-3">
                                             <div className="flex-1">
@@ -818,7 +899,14 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                         return (
                                             <div
                                                 key={pkg.id}
-                                                className="bg-white rounded-lg shadow-sm overflow-hidden mb-4 last:mb-0 hover:shadow-md transition-shadow"
+                                                className="bg-white rounded-lg overflow-hidden mb-4 last:mb-0 transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                                style={{
+                                                    boxShadow: isEnabled 
+                                                        ? '0 4px 16px rgba(216, 30, 67, 0.2), 0 2px 4px rgba(216, 30, 67, 0.15)'
+                                                        : '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                    border: isEnabled ? '2px solid #d81e43' : '1px solid rgba(0, 0, 0, 0.08)',
+                                                    transformOrigin: 'center',
+                                                }}
                                             >
                                                 <div className="p-4">
                                                     <div className="flex items-start justify-between mb-3">
@@ -873,7 +961,14 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
 
                                     {/* ✅ Progressive Payment Table moved OUTSIDE package loop */}
                                     {packages.some(pkg => pkg.type === 'optional' && pkg.progressive_payment) && (
-                                        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mt-6">
+                                        <div 
+                                            className="bg-white rounded-lg p-4 mt-6 transition-transform duration-300 ease-in-out hover:scale-105"
+                                            style={{
+                                                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                border: '1px solid rgba(0, 0, 0, 0.08)',
+                                                transformOrigin: 'center',
+                                            }}
+                                        >
                                             <div className="flex items-center space-x-2 mb-3">
                                                 <svg
                                                     className="w-5 h-5 text-gray-600"

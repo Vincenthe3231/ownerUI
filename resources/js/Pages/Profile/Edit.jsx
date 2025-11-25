@@ -207,24 +207,32 @@ export default function Edit() {
         <AuthenticatedLayout header={null} hideNavigation>
             <Head title="Profile" />
             <main className="min-h-screen bg-white pb-32">
-                <div className="px-4 pt-6">
-                    {/* Logo */}
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center">
-                            <ApplicationLogo className="h-8 w-auto mr-2" />
-                        </div>
-                    </div>
-                </div>
-                <section className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-2">
-                    {/* Profile Card with Hybrid Morphism */}
+                {/* Background decorative image - spans entire top section */}
+                <div className="flex justify-center w-full">
                     <div 
-                        className="rounded-3xl bg-white p-4"
+                        className="relative w-full overflow-hidden mx-auto sm:max-w-full max-w-[412px] max-h-[320px] sm:max-h-none"
                         style={{
-                            backdropFilter: 'blur(10px)',
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            backgroundImage: 'url(/images/avatar-background.png)',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'left',
+                            backgroundRepeat: 'no-repeat',
+                            minHeight: '320px',
                         }}
                     >
-                        <div className="flex flex-col items-center text-center">
+                    
+                    {/* Logo - positioned above with high z-index */}
+                    <div className="relative z-20 px-4 pt-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center">
+                                <ApplicationLogo className="h-8 w-auto mr-2" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Profile Card Container - centered */}
+                    <div className="relative z-10 mx-auto max-w-md px-4 pb-6">
+                        <div className="flex flex-col items-center text-center w-full">
+                            {/* Avatar container - centered in the middle of background */}
                             <div className="relative">
                                 <div 
                                     className="flex h-36 w-36 items-center justify-center rounded-full overflow-hidden"
@@ -232,7 +240,6 @@ export default function Edit() {
                                         background: imagePreview || profileImage 
                                             ? 'transparent' 
                                             : 'linear-gradient(135deg, rgba(216, 30, 67, 0.15) 0%, rgba(255, 255, 255, 0.9) 100%)',
-                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                                     }}
                                 >
                                     {imagePreview || profileImage ? (
@@ -252,7 +259,7 @@ export default function Edit() {
                                     type="button"
                                     onClick={handleEditClick}
                                     disabled={isUploading}
-                                    className="absolute -top-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center border-2 border-white transition-transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed z-10"
+                                    className="absolute -top-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center border-2 border-white transition-transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed z-20"
                                     style={{
                                         backgroundColor: '#d81e43',
                                         boxShadow: '0 2px 8px rgba(216, 30, 67, 0.4)',
@@ -304,13 +311,22 @@ export default function Edit() {
                                 onChange={handleImageChange}
                                 className="hidden"
                             />
-                            {/* <p className="mt-1 text-base font-medium" style={{ color: '#d81e43' }}>
-                                {user.role ?? 'Account Owner'}
-                            </p> */}
                         </div>
                     </div>
-
-                    {/* Contact Information Section */}
+                </div>
+                </div>
+                
+                {/* Contact Information Section - Outside background image */}
+                <section className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6">
+                    {/* Profile Card with Hybrid Morphism */}
+                    <div 
+                        className="rounded-3xl bg-white p-4"
+                        style={{
+                            backdropFilter: 'blur(10px)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        }}
+                    >
+                        {/* Contact Information Section */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
@@ -351,75 +367,77 @@ export default function Edit() {
                         </div>
                     </div>
 
-                    {/* Account Actions Section with CTA Styling */}
-                    <div 
-                        className="space-y-4 rounded-3xl p-6"
-                        style={{
-                            background: 'linear-gradient(135deg, rgba(245, 131, 61, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%)',
-                            boxShadow: '0 8px 20px -5px rgba(245, 131, 61, 0.25), 0 4px 6px -2px rgba(245, 131, 61, 0.1)',
-                            backdropFilter: 'blur(10px)',
-                        }}
-                    >
-                        <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#f5833d' }}>
-                            Account Actions
-                        </h2>
-
-                        <button
-                            type="button"
-                            onClick={handleLogout}
-                            disabled={processing}
-                            className="flex w-full items-center justify-center gap-3 rounded-2xl px-5 py-3 text-lg font-semibold text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                        {/* Account Actions Section with CTA Styling */}
+                        <div 
+                            className="space-y-4 rounded-3xl p-6 mt-6"
                             style={{
-                                background: 'linear-gradient(135deg, #f5833d 0%, #d81e43 100%)',
-                                boxShadow: '0 4px 12px rgba(245, 131, 61, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                                background: 'linear-gradient(135deg, rgba(245, 131, 61, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%)',
+                                boxShadow: '0 8px 20px -5px rgba(245, 131, 61, 0.25), 0 4px 6px -2px rgba(245, 131, 61, 0.1)',
+                                backdropFilter: 'blur(10px)',
                             }}
                         >
-                            <svg
-                                role="img"
-                                aria-hidden="true"
-                                className="h-6 w-6"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M15 7L20 12L15 17"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                                <path
-                                    d="M20 12H9.5"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                                <path
-                                    d="M13 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                            Logout
-                        </button>
+                            <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#f5833d' }}>
+                                Account Actions
+                            </h2>
 
-                        <p className="text-center text-sm leading-relaxed text-gray-600">
-                            We are continuously improving your experience. If
-                            you notice anything that could be easier to use,
-                            please reach us at{' '}
-                            <a
-                                className="font-semibold underline underline-offset-4"
-                                style={{ color: '#d81e43' }}
-                                href="mailto:itsupport@renoxpert.my"
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                disabled={processing}
+                                className="flex w-full items-center justify-center gap-3 rounded-2xl px-5 py-3 text-lg font-semibold text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                                style={{
+                                    // background: 'linear-gradient(135deg, #f5833d 0%, #d81e43 100%)',
+                                    backgroundColor: '#d81e43',
+                                    boxShadow: '0 4px 12px rgba(245, 131, 61, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                                }}
                             >
-                                itsupport@renoxpert.my
-                            </a>
-                            .
-                        </p>
+                                <svg
+                                    role="img"
+                                    aria-hidden="true"
+                                    className="h-6 w-6"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M15 7L20 12L15 17"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                    <path
+                                        d="M20 12H9.5"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                    <path
+                                        d="M13 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                Logout
+                            </button>
+
+                            <p className="text-center text-sm leading-relaxed text-gray-600">
+                                We are continuously improving your experience. If
+                                you notice anything that could be easier to use,
+                                please reach us at{' '}
+                                <a
+                                    className="font-semibold underline underline-offset-4"
+                                    style={{ color: '#d81e43' }}
+                                    href="mailto:itsupport@renoxpert.my"
+                                >
+                                    itsupport@renoxpert.my
+                                </a>
+                                .
+                            </p>
+                        </div>
                     </div>
                 </section>
 

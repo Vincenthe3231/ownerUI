@@ -205,6 +205,30 @@ class RenovationProgressController extends Controller
     }
 
     /**
+     * Update item status for a renovation project.
+     */
+    public function updateItemStatus(Request $request)
+    {
+        $request->validate([
+            'project_id' => 'required|string',
+            'item_name' => 'required|string',
+            'filter' => 'required|string',
+            'status' => 'required|string|in:Not Applicable,On Hold,Applied',
+            'tab' => 'required|string',
+        ]);
+
+        // TODO: Implement database update logic here
+        // For now, just return success
+        // Example:
+        // $project = Project::findOrFail($request->project_id);
+        // Update the item status in the database based on tab and filter
+        // $project->updateItemStatus($request->tab, $request->item_name, $request->filter, $request->status);
+
+        // Return a redirect back for Inertia compatibility (no page reload with preserveState)
+        return back();
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
