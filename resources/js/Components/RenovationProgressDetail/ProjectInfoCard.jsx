@@ -4,7 +4,13 @@ export default function ProjectInfoCard({ project, isExpanded, onToggle }) {
     if (!project) return null;
 
     return (
-        <div className="bg-white rounded-3xl p-2 shadow-sm">
+        <div 
+            className="bg-white rounded-3xl pt-2 pl-2 pr-4"
+            style={{
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+            }}
+        >
             <button
                 onClick={onToggle}
                 className="w-full"

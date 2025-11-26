@@ -1,11 +1,84 @@
 import { Head, Link } from '@inertiajs/react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import BottomSheet from '@/Components/BottomSheet';
 import BottomNavigation from '@/Components/BottomNavigation';
 import AppBar from '@/Components/AppBar';
 import Tabs from '@/Components/Tabs';
 import { ChevronRight, ChevronDown } from 'lucide-react';
+
+// Helper function to get glossy chip style based on color type (reduced effects)
+const getGlossyChipStyle = (colorType, isActive = false) => {
+    switch (colorType) {
+        case 'green':
+            return {
+                background: isActive 
+                    ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+                    : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                color: '#ffffff',
+                boxShadow: `
+                    0 2px 6px rgba(34, 197, 94, 0.25),
+                    0 1px 2px rgba(34, 197, 94, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                `,
+                border: 'none',
+            };
+        case 'pink':
+            return {
+                background: isActive
+                    ? 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)'
+                    : 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
+                color: '#ffffff',
+                boxShadow: `
+                    0 2px 6px rgba(236, 72, 153, 0.25),
+                    0 1px 2px rgba(236, 72, 153, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                `,
+                border: 'none',
+            };
+        case 'red':
+            return {
+                background: 'linear-gradient(135deg, #e91e3d 0%, #c81a33 100%)',
+                color: '#ffffff',
+                boxShadow: `
+                    0 2px 6px rgba(216, 30, 67, 0.25),
+                    0 1px 2px rgba(216, 30, 67, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                `,
+                border: 'none',
+            };
+        case 'teal':
+            return {
+                background: isActive
+                    ? 'linear-gradient(135deg, #3cc0bd 0%, #2a9d9a 100%)'
+                    : 'linear-gradient(135deg, #5eead4 0%, #3cc0bd 100%)',
+                color: '#ffffff',
+                boxShadow: `
+                    0 2px 6px rgba(60, 192, 189, 0.25),
+                    0 1px 2px rgba(60, 192, 189, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                `,
+                border: 'none',
+            };
+        case 'gray':
+        default:
+            return {
+                background: 'linear-gradient(135deg, #9ca3af 0%, #b8bdc6 100%)',
+                color: '#ffffff',
+                boxShadow: `
+                    0 2px 6px rgba(156, 163, 175, 0.2),
+                    0 1px 2px rgba(156, 163, 175, 0.15),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                `,
+                border: 'none',
+            };
+    }
+};
 
 export default function QuotationOverview({ quotation, invoices = [], packages = [] }) {
     const [activeTab, setActiveTab] = useState('overview');
@@ -170,12 +243,48 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
     const [enabledPackages, setEnabledPackages] = useState({}); // Track which optional packages are enabled
     const [invoiceFilter, setInvoiceFilter] = useState('all'); // Filter for invoices: 'all', 'paid', 'overdue', 'top5'
     const [selectedPackage, setSelectedPackage] = useState(null); // Track which package is shown in bottom sheet
+    const [circularProgress, setCircularProgress] = useState(0); // For animated circular progress
+    const [animatedPercentage, setAnimatedPercentage] = useState(0); // For animated percentage text
 
     // Calculate invoice statistics for status chips
     const totalInvoices = invoices.length;
     const paidInvoices = invoices.filter(inv => inv.status === 'paid').length;
     const overdueInvoices = invoices.filter(inv => inv.status === 'overdue').length;
     const pendingInvoices = invoices.filter(inv => inv.status !== 'paid' && inv.status !== 'overdue').length;
+    
+    // Calculate progress percentage (paid invoices / total invoices)
+    const progressPercentage = totalInvoices > 0 ? (paidInvoices / totalInvoices) * 100 : 0;
+    
+    // Animate circular progress and percentage on mount and when invoices change
+    useEffect(() => {
+        setCircularProgress(0);
+        setAnimatedPercentage(0);
+        
+        const duration = 1500; // Animation duration in ms
+        const steps = 60; // Number of animation steps
+        const stepDuration = duration / steps;
+        const increment = progressPercentage / steps;
+        
+        let currentStep = 0;
+        const progressTimer = setTimeout(() => {
+            setCircularProgress(progressPercentage);
+        }, 100);
+        
+        const percentageTimer = setInterval(() => {
+            currentStep++;
+            if (currentStep <= steps) {
+                setAnimatedPercentage(Math.min(increment * currentStep, progressPercentage));
+            } else {
+                setAnimatedPercentage(progressPercentage);
+                clearInterval(percentageTimer);
+            }
+        }, stepDuration);
+        
+        return () => {
+            clearTimeout(progressTimer);
+            clearInterval(percentageTimer);
+        };
+    }, [progressPercentage, invoices.length]);
 
     // Calculate payment amounts from invoices to match QuotationStatistics.jsx
     const totalAmount = invoices.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0);
@@ -348,45 +457,141 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             <div 
                                 className="bg-white rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"
                                 style={{
-                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
-                                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                                    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)',
+                                    border: '2px solid rgba(0, 0, 0, 0.12)',
+                                    backgroundColor: '#ffffff',
                                     transformOrigin: 'center',
                                 }}
                             >
-                                <div className="px-4 py-4">
-                                    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            {totalInvoices > 0 && (
-                                                <span className="px-2 py-1 text-[0.7rem] font-medium bg-gray-100 text-gray-800 rounded-full">
-                                                    Total: {totalInvoices}
-                                                </span>
-                                            )}
-                                            {paidInvoices > 0 && (
-                                                <span className="px-3 py-1 text-[0.7rem] font-medium bg-green-100 text-green-800 rounded-full">
-                                                    Paid: {paidInvoices}
-                                                </span>
-                                            )}
-                                            {overdueInvoices > 0 && (
-                                                <span className="px-3 py-1 text-[0.7rem] font-medium bg-pink-100 text-pink-800 rounded-full">
-                                                    Overdue: {overdueInvoices}
-                                                </span>
-                                            )}
-                                            {pendingInvoices > 0 && (
-                                                <span className="px-3 py-1 text-[0.7rem] font-medium bg-gray-100 text-gray-800 rounded-full">
-                                                    Pending: {pendingInvoices}
-                                                </span>
-                                            )}
-                                        </div>
-                                        {quotation?.id && (
-                                            <Link
-                                                href={route('quotation.statistics', quotation.id)}
-                                                className="flex items-center gap-1 text-sm font-medium underline text-[#d81e43] hover:text-[#d81e43] border-0 bg-transparent p-0 cursor-pointer"
+                                <div className="px-4 py-6 flex flex-col items-center">
+                                    {/* Circular Progress Indicator with Segments */}
+                                    <div className="relative mb-6" style={{ width: '140px', height: '140px' }}>
+                                        <svg width="140" height="140" viewBox="0 0 140 140" className="transform -rotate-90">
+                                            <g transform="translate(70, 70)">
+                                                {Array.from({ length: 100 }).map((_, index) => {
+                                                    const isFilled = index < circularProgress;
+                                                    const segmentAngle = (360 / 100) * (Math.PI / 180);
+                                                    const startAngle = (index * 360 / 100 - 90) * (Math.PI / 180);
+                                                    const endAngle = startAngle + segmentAngle;
+                                                    
+                                                    const radius = 60;
+                                                    const innerRadius = 50;
+                                                    
+                                                    const x1 = Math.cos(startAngle) * innerRadius;
+                                                    const y1 = Math.sin(startAngle) * innerRadius;
+                                                    const x2 = Math.cos(startAngle) * radius;
+                                                    const y2 = Math.sin(startAngle) * radius;
+                                                    const x3 = Math.cos(endAngle) * radius;
+                                                    const y3 = Math.sin(endAngle) * radius;
+                                                    const x4 = Math.cos(endAngle) * innerRadius;
+                                                    const y4 = Math.sin(endAngle) * innerRadius;
+                                                    
+                                                    const largeArc = segmentAngle > Math.PI ? 1 : 0;
+                                                    
+                                                    return (
+                                                        <path
+                                                            key={index}
+                                                            d={`M ${x1} ${y1} L ${x2} ${y2} A ${radius} ${radius} 0 ${largeArc} 1 ${x3} ${y3} L ${x4} ${y4} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x1} ${y1} Z`}
+                                                            fill={isFilled ? '#22c55e' : '#e5e7eb'}
+                                                            style={{
+                                                                transition: 'fill 0.1s ease-out',
+                                                                transitionDelay: `${index * 0.01}s`,
+                                                            }}
+                                                        />
+                                                    );
+                                                })}
+                                            </g>
+                                        </svg>
+                                        {/* Percentage text in center - Animated */}
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span 
+                                                className="text-3xl font-bold text-gray-900"
+                                                style={{
+                                                    transition: 'opacity 0.3s ease-in-out',
+                                                }}
                                             >
-                                                View Statistic
-                                                <ChevronRight className="w-4 h-4" />
-                                            </Link>
+                                                {Math.round(animatedPercentage)}%
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Status Chips - Centered */}
+                                    <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+                                        {totalInvoices > 0 && (
+                                            <span 
+                                                className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                style={{
+                                                    ...getGlossyChipStyle('gray'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                }}
+                                            >
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">Total: {totalInvoices}</span>
+                                            </span>
+                                        )}
+                                        {paidInvoices > 0 && (
+                                            <span 
+                                                className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                style={{
+                                                    ...getGlossyChipStyle('green'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                }}
+                                            >
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">Paid: {paidInvoices}</span>
+                                            </span>
+                                        )}
+                                        {overdueInvoices > 0 && (
+                                            <span 
+                                                className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                style={{
+                                                    ...getGlossyChipStyle('pink'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                }}
+                                            >
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">Overdue: {overdueInvoices}</span>
+                                            </span>
                                         )}
                                     </div>
+
+                                    {/* View Statistic Button - Centered */}
+                                    {quotation?.id && (
+                                        <Link
+                                            href={route('quotation.statistics', quotation.id)}
+                                            className="px-4 py-2 text-sm font-medium text-[#e91e3d] underline rounded-lg transition-colors hover:opacity-90"
+                                            // style={{
+                                            //     background: 'linear-gradient(135deg, #e91e3d 0%, #c81a33 100%)',
+                                            //     boxShadow: `
+                                            //         0 2px 6px rgba(216, 30, 67, 0.25),
+                                            //         0 1px 2px rgba(216, 30, 67, 0.2),
+                                            //         inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                                            //         inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                                            //     `,
+                                            //     textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                            // }}
+                                        >
+                                            View Statistic
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
 
@@ -413,18 +618,57 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         {(quotation?.status === 'Sale' || quotation?.status === 'Confirmed') && (
-                                            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                                {quotation?.status || 'Confirmed'}
+                                            <span 
+                                                className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                style={{
+                                                    ...getGlossyChipStyle('green'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                }}
+                                            >
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">{quotation?.status || 'Confirmed'}</span>
                                             </span>
                                         )}
                                         {quotation?.status === 'Unreleased' && (
-                                            <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                                                Unreleased
+                                            <span 
+                                                className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                style={{
+                                                    ...getGlossyChipStyle('gray'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                }}
+                                            >
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">Unreleased</span>
                                             </span>
                                         )}
                                         {!quotation?.status && (
-                                            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                                Confirmed
+                                            <span 
+                                                className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                style={{
+                                                    ...getGlossyChipStyle('green'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                }}
+                                            >
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">Confirmed</span>
                                             </span>
                                         )}
                                         <svg
@@ -673,61 +917,90 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                     e.stopPropagation();
                                                     setInvoiceFilter('all');
                                                 }}
-                                                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                                                    invoiceFilter === 'all'
-                                                        ? 'bg-[#d81e43] text-white'
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
+                                                className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden transition-all"
+                                                style={{
+                                                    ...getGlossyChipStyle(invoiceFilter === 'all' ? 'red' : 'gray'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                    opacity: invoiceFilter === 'all' ? 1 : 0.6,
+                                                }}
                                             >
-                                                All
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">All</span>
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    // Toggle: if already active, reset to 'all', otherwise set to 'paid'
                                                     setInvoiceFilter(invoiceFilter === 'paid' ? 'all' : 'paid');
                                                 }}
-                                                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                                                    invoiceFilter === 'paid'
-                                                        ? 'bg-green-600 text-white'
-                                                        : 'bg-green-100 text-green-800 hover:bg-green-200'
-                                                }`}
+                                                className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden transition-all"
+                                                style={{
+                                                    ...getGlossyChipStyle('green', invoiceFilter === 'paid'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                    opacity: invoiceFilter === 'paid' ? 1 : 0.6,
+                                                }}
                                             >
-                                                Paid
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">Paid</span>
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    // Toggle: if already active, reset to 'all', otherwise set to 'overdue'
                                                     setInvoiceFilter(invoiceFilter === 'overdue' ? 'all' : 'overdue');
                                                 }}
-                                                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                                                    invoiceFilter === 'overdue'
-                                                        ? 'bg-pink-600 text-white'
-                                                        : 'bg-pink-100 text-pink-800 hover:bg-pink-200'
-                                                }`}
+                                                className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden transition-all"
+                                                style={{
+                                                    ...getGlossyChipStyle('pink', invoiceFilter === 'overdue'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                    opacity: invoiceFilter === 'overdue' ? 1 : 0.6,
+                                                }}
                                             >
-                                                Overdue
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">Overdue</span>
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    // Toggle: if already active, reset to 'all', otherwise set to 'top5'
                                                     setInvoiceFilter(invoiceFilter === 'top5' ? 'all' : 'top5');
                                                 }}
-                                                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                                                    invoiceFilter === 'top5'
-                                                        ? 'bg-[#3cc0bd] text-white'
-                                                        : 'bg-[#3cc0bd]/50 text-white hover:bg-[#3cc0bd]/50 hover:text-white'
-                                                }`}
+                                                className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden transition-all"
+                                                style={{
+                                                    ...getGlossyChipStyle('teal', invoiceFilter === 'top5'),
+                                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                    opacity: invoiceFilter === 'top5' ? 1 : 0.6,
+                                                }}
                                             >
-                                                Top 5
+                                                <div 
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                        borderRadius: '9999px',
+                                                    }}
+                                                />
+                                                <span className="relative z-10">Top 5</span>
                                             </button>
                                         </div>
 
@@ -789,16 +1062,55 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                                     {invoice.invoice_no}
                                                                 </div>
                                                                 {invoice.status === 'paid' ? (
-                                                                    <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                                                        Paid
+                                                                    <span 
+                                                                        className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                                        style={{
+                                                                            ...getGlossyChipStyle('green'),
+                                                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                                        }}
+                                                                    >
+                                                                        <div 
+                                                                            className="absolute inset-0 pointer-events-none"
+                                                                            style={{
+                                                                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                                                borderRadius: '9999px',
+                                                                            }}
+                                                                        />
+                                                                        <span className="relative z-10">Paid</span>
                                                                     </span>
                                                                 ) : invoice.status === 'overdue' ? (
-                                                                    <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-800 rounded-full">
-                                                                        Overdue
+                                                                    <span 
+                                                                        className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                                        style={{
+                                                                            ...getGlossyChipStyle('pink'),
+                                                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                                        }}
+                                                                    >
+                                                                        <div 
+                                                                            className="absolute inset-0 pointer-events-none"
+                                                                            style={{
+                                                                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                                                borderRadius: '9999px',
+                                                                            }}
+                                                                        />
+                                                                        <span className="relative z-10">Overdue</span>
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                                                                        {invoice.status}
+                                                                    <span 
+                                                                        className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                                        style={{
+                                                                            ...getGlossyChipStyle('gray'),
+                                                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                                        }}
+                                                                    >
+                                                                        <div 
+                                                                            className="absolute inset-0 pointer-events-none"
+                                                                            style={{
+                                                                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                                                borderRadius: '9999px',
+                                                                            }}
+                                                                        />
+                                                                        <span className="relative z-10">{invoice.status}</span>
                                                                     </span>
                                                                 )}
                                                             </div>

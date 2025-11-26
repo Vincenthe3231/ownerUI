@@ -42,8 +42,8 @@ export default function CoachMark({ show, slide, onClose, onPrevious, onNext }) 
                 <div className="flex-1 overflow-y-auto p-6">
                     <div className="text-center">
                         <div className="mb-4 flex justify-center">
-                            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
-                                <Icon className="w-10 h-10 text-blue-600" />
+                            <div className="w-20 h-20 bg-[#d81e43]/10 rounded-full flex items-center justify-center">
+                                <Icon className="w-10 h-10 text-[#d81e43]" />
                             </div>
                         </div>
                         <h4 className="text-xl font-semibold text-gray-900 mb-2">{currentSlide.title}</h4>
@@ -54,9 +54,9 @@ export default function CoachMark({ show, slide, onClose, onPrevious, onNext }) 
                 <div className="flex items-center justify-between p-4 border-t border-gray-200">
                     <button
                         onClick={onPrevious}
-                        className="px-4 py-2 text-gray-600 hover:text-gray-900"
+                        className="px-4 py-2 sm:text-sm text-base text-[#d81e43] hover:text-[#c01a38]"
                     >
-                        {slide === 0 ? 'Skip' : 'Previous'}
+                        <span className="underline">{slide === 0 ? 'Skip' : 'Previous'}</span>
                     </button>
                     <div className="flex gap-2">
                         {[0, 1, 2].map((s) => (

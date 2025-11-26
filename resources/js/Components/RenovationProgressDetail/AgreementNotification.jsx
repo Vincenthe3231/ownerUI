@@ -2,7 +2,12 @@ import { FileCheck } from 'lucide-react';
 
 export default function AgreementNotification() {
     return (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+        <div 
+            className="bg-red-50 border border-red-200 rounded-2xl p-4"
+            style={{
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+            }}
+        >
             <div className="flex items-start space-x-3">
                 <FileCheck className="w-6 h-6 text-[#d81e43] flex-shrink-0 mt-0.5" />
                 <div className="flex-1">

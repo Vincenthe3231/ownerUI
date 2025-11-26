@@ -21,15 +21,19 @@ export default function ContentSection({
     return (
         <div 
             ref={contentSectionRef}
-            className="bg-white rounded-2xl shadow-sm p-4 border-[#d81e43] border"
+            className="bg-white rounded-2xl p-4"
+            style={{
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+            }}
         >
             <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
                 <button
                     onClick={onHelpClick}
-                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="p-1 text-[#d81e43] hover:text-[#c01a38] transition-colors"
                 >
-                    <HelpCircle className="w-5 h-5" />
+                    <HelpCircle className="w-5 h-5 text-[#d81e43]" />
                 </button>
             </div>
             

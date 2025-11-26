@@ -4,6 +4,49 @@ import { Smile, Frown, Clock } from 'lucide-react';
 import BottomNavigation from '@/Components/BottomNavigation';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
+// Helper function to get glossy chip style based on color type (reduced effects)
+const getGlossyChipStyle = (colorType) => {
+    switch (colorType) {
+        case 'green':
+            return {
+                background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                color: '#ffffff',
+                boxShadow: `
+                    0 2px 6px rgba(34, 197, 94, 0.25),
+                    0 1px 2px rgba(34, 197, 94, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                `,
+                border: 'none',
+            };
+        case 'pink':
+            return {
+                background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
+                color: '#ffffff',
+                boxShadow: `
+                    0 2px 6px rgba(236, 72, 153, 0.25),
+                    0 1px 2px rgba(236, 72, 153, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                `,
+                border: 'none',
+            };
+        case 'gray':
+        default:
+            return {
+                background: 'linear-gradient(135deg, #9ca3af 0%, #b8bdc6 100%)',
+                color: '#ffffff',
+                boxShadow: `
+                    0 2px 6px rgba(156, 163, 175, 0.2),
+                    0 1px 2px rgba(156, 163, 175, 0.15),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                `,
+                border: 'none',
+            };
+    }
+};
+
 export default function QuotationStatistics({ quotation, invoices = [] }) {
     const [animatedProgress, setAnimatedProgress] = useState({
         paid: false,
@@ -211,14 +254,23 @@ export default function QuotationStatistics({ quotation, invoices = [] }) {
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                     <span 
-                                        className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full flex items-center gap-1 transition-all duration-[2000ms] ease-out"
+                                        className="px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1 relative overflow-hidden transition-all duration-[2000ms] ease-out"
                                         style={{
+                                            ...getGlossyChipStyle('green'),
                                             opacity: showLabels.paid ? 1 : 0,
                                             transform: showLabels.paid ? 'translateY(0)' : 'translateY(-10px)',
+                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                                         }}
                                     >
-                                        <Smile className="w-4 h-4" />
-                                        Paid
+                                        <div 
+                                            className="absolute inset-0 pointer-events-none"
+                                            style={{
+                                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                borderRadius: '9999px',
+                                            }}
+                                        />
+                                        <Smile className="w-4 h-4 relative z-10" />
+                                        <span className="relative z-10">Paid</span>
                                     </span>
                                     <span className="text-sm text-gray-600">{paidInvoices} invoices</span>
                                 </div>
@@ -246,14 +298,23 @@ export default function QuotationStatistics({ quotation, invoices = [] }) {
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                     <span 
-                                        className="px-3 py-1 text-xs font-medium bg-pink-100 text-pink-800 rounded-full flex items-center gap-1 transition-all duration-[2000ms] ease-out"
+                                        className="px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1 relative overflow-hidden transition-all duration-[2000ms] ease-out"
                                         style={{
+                                            ...getGlossyChipStyle('pink'),
                                             opacity: showLabels.overdue ? 1 : 0,
                                             transform: showLabels.overdue ? 'translateY(0)' : 'translateY(-10px)',
+                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                                         }}
                                     >
-                                        <Frown className="w-4 h-4" />
-                                        Overdue
+                                        <div 
+                                            className="absolute inset-0 pointer-events-none"
+                                            style={{
+                                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                borderRadius: '9999px',
+                                            }}
+                                        />
+                                        <Frown className="w-4 h-4 relative z-10" />
+                                        <span className="relative z-10">Overdue</span>
                                     </span>
                                     <span className="text-sm text-gray-600">{overdueInvoices} invoices</span>
                                 </div>
@@ -281,14 +342,23 @@ export default function QuotationStatistics({ quotation, invoices = [] }) {
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                     <span 
-                                        className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full flex items-center gap-1 transition-all duration-[2000ms] ease-out"
+                                        className="px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1 relative overflow-hidden transition-all duration-[2000ms] ease-out"
                                         style={{
+                                            ...getGlossyChipStyle('gray'),
                                             opacity: showLabels.pending ? 1 : 0,
                                             transform: showLabels.pending ? 'translateY(0)' : 'translateY(-10px)',
+                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                                         }}
                                     >
-                                        <Clock className="w-4 h-4" />
-                                        Pending
+                                        <div 
+                                            className="absolute inset-0 pointer-events-none"
+                                            style={{
+                                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                borderRadius: '9999px',
+                                            }}
+                                        />
+                                        <Clock className="w-4 h-4 relative z-10" />
+                                        <span className="relative z-10">Pending</span>
                                     </span>
                                     <span className="text-sm text-gray-600">{pendingInvoices} invoices</span>
                                 </div>
@@ -346,16 +416,55 @@ export default function QuotationStatistics({ quotation, invoices = [] }) {
                                                 {invoice.invoice_no}
                                             </div>
                                             {invoice.status === 'paid' ? (
-                                                <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                                    Paid
+                                                <span 
+                                                    className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                    style={{
+                                                        ...getGlossyChipStyle('green'),
+                                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                    }}
+                                                >
+                                                    <div 
+                                                        className="absolute inset-0 pointer-events-none"
+                                                        style={{
+                                                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                            borderRadius: '9999px',
+                                                        }}
+                                                    />
+                                                    <span className="relative z-10">Paid</span>
                                                 </span>
                                             ) : invoice.status === 'overdue' ? (
-                                                <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-800 rounded-full">
-                                                    Overdue
+                                                <span 
+                                                    className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                    style={{
+                                                        ...getGlossyChipStyle('pink'),
+                                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                    }}
+                                                >
+                                                    <div 
+                                                        className="absolute inset-0 pointer-events-none"
+                                                        style={{
+                                                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                            borderRadius: '9999px',
+                                                        }}
+                                                    />
+                                                    <span className="relative z-10">Overdue</span>
                                                 </span>
                                             ) : (
-                                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                                                    {invoice.status}
+                                                <span 
+                                                    className="px-2 py-1 text-xs font-semibold rounded-full relative overflow-hidden"
+                                                    style={{
+                                                        ...getGlossyChipStyle('gray'),
+                                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                                    }}
+                                                >
+                                                    <div 
+                                                        className="absolute inset-0 pointer-events-none"
+                                                        style={{
+                                                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
+                                                            borderRadius: '9999px',
+                                                        }}
+                                                    />
+                                                    <span className="relative z-10">{invoice.status}</span>
                                                 </span>
                                             )}
                                         </div>

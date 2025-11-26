@@ -11,7 +11,9 @@ export function useItemStatus(project, activeTab, activeFilter) {
         if (itemStatuses[itemKey]) {
             return itemStatuses[itemKey];
         }
-        const rawStatus = item[activeFilter];
+        // For tabs without filters (dining, kitchen, electrical, living), use status property
+        // For tabs with filters (room, bath), use the filter property
+        const rawStatus = item.status !== undefined ? item.status : item[activeFilter];
         return normalizeStatus(rawStatus);
     };
 
@@ -39,10 +41,13 @@ export function useItemStatus(project, activeTab, activeFilter) {
         
         // Save to database
         if (project?.id) {
+            // For tabs without filters, send null for filter
+            const filterValue = item.status !== undefined ? null : activeFilter;
+            
             router.post(route('renovation-progress.update-item-status'), {
                 project_id: project.id,
                 item_name: item.name,
-                filter: activeFilter,
+                filter: filterValue,
                 status: newStatus,
                 tab: activeTab,
             }, {

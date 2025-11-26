@@ -7,9 +7,39 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\RenoProgress;
+use App\Helpers\RenoProgressItems;
+use Carbon\Carbon;
 
 class RenovationProgressController extends Controller
 {
+    /**
+     * Format datetime according to app locale configuration
+     * Uses locale and timezone from config/app.php (set via .env)
+     * Format: dd/mm/yyyy hh:mm AM/PM (e.g., 26/11/2025 02:30 PM)
+     */
+    private function formatDateTimeMY($datetime): string
+    {
+        if (!$datetime) {
+            return 'N/A';
+        }
+        
+        // Get locale and timezone from config (set via .env)
+        $locale = config('app.locale', 'en_MY');
+        $timezone = config('app.timezone', 'Asia/Kuala_Lumpur');
+        
+        // Handle both Carbon instances and strings
+        $carbon = $datetime instanceof Carbon 
+            ? $datetime->copy()->setTimezone($timezone)
+            : Carbon::parse($datetime)->setTimezone($timezone);
+        
+        // Set Carbon locale for localized formatting
+        $carbon->setLocale($locale);
+        
+        // Use Carbon's isoFormat for locale-aware formatting
+        // For en_MY, this will format as: dd/mm/yyyy hh:mm AM/PM
+        return $carbon->isoFormat('DD/MM/YYYY hh:mm A');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -68,7 +98,14 @@ class RenovationProgressController extends Controller
         $unitId = 'A-30-12';
         $propertyName = 'Meta City';
 
-        // Hardcoded detailed project data (keeping existing structure, but adding owner data)
+        // Fetch all renovation progress data from database
+        $projectId = (string) $id;
+        $renoProgressData = RenoProgress::where('project_id', $projectId)
+            ->with('updatedByUser')
+            ->get()
+            ->groupBy(['tab', 'item_name', 'filter']);
+
+        // Build project data structure
         $project = [
             'id' => $id,
             'unit_id' => $unitId,
@@ -77,7 +114,6 @@ class RenovationProgressController extends Controller
             'status' => 'Pending Agreement for Owner Handover',
             'hasNotification' => true,
             'hasAgreement' => true,
-            // Add owner details from database
             'owner_name' => $ownerName,
             'owner_phone' => $ownerPhone,
             'progress_stages' => [
@@ -86,7 +122,7 @@ class RenovationProgressController extends Controller
                     'name' => 'Sales',
                     'status' => 'completed',
                     'statusText' => 'Completed',
-                    'date' => 'N/A',
+                    'date' => '10/11/2025',
                     'color' => 'green',
                 ],
                 [
@@ -94,98 +130,222 @@ class RenovationProgressController extends Controller
                     'name' => 'Defect & Permit',
                     'status' => 'in_progress',
                     'statusText' => 'In Progress',
-                    'date' => 'TBC',
+                    'date' => 'N/A',
                     'color' => 'yellow',
                 ],
                 [
                     'id' => 3,
+                    'name' => 'Renovation',
+                    'status' => 'not_started',
+                    'statusText' => 'Not Started',
+                    'date' => 'N/A',
+                    'color' => 'gray',
+                ],
+                [
+                    'id' => 4,
                     'name' => 'Owner Handover',
                     'status' => 'not_started',
                     'statusText' => 'Not Started',
-                    'date' => 'TBC',
+                    'date' => 'N/A',
                     'color' => 'gray',
                 ],
             ],
-            'room_furnitures' => [
-                ['name' => 'Wiring', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'LED Track Lighting', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Fan', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Painting & Featured Wall', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Bedframe', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Wardrobe', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Table', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Chair', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Curtain', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Wall Mirror', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Mattress', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Mattress Protector', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Portrait', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Door Stopper', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'SMART METER', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'SMART LOCK (Room)', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Mini Fridge', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Partition Wall', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-                ['name' => 'Air Cond', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable', 'r4' => 'Not Applicable', 'pr' => 'Not Applicable', 'studio' => 'Not Applicable'],
-            ],
-            'bath_furnitures' => [
-                ['name' => 'Wiring', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable'],
-                ['name' => 'Lighting', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable'],
-                ['name' => 'Cloth Hanger', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable'],
-                ['name' => 'Bidet', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable'],
-                ['name' => 'Wall Mirror', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable'],
-                ['name' => 'Water Heater', 'r1' => 'Not Applicable', 'r2' => 'Not Applicable', 'r3' => 'Not Applicable'],
-            ],
-            'dining_furnitures' => [
-                ['name' => 'Wiring', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'LED Track Lighting', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Fan', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Painting & Featured Wall', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Dining Table', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Dining Chair', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Shoe Cabinet', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Portrait', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'CCTV & Shelve', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Smart Main Door Lock', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'G2 Gateway Hub', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Cloth Drying Rack', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Doorbell', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Fire Extinguisher', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Cleaning Tools Set', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Door Stopper', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-            ],
-            'kitchen_furnitures' => [
-                ['name' => 'Wiring', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Painting', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Kitchen Cabinet Base Unit', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Kitchen Top', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Wall Unit', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Kitchen Sink', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Hood', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-            ],
-            'electrical_furnitures' => [
-                ['name' => 'Water Dispenser', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Microwave', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Induction Cooker', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Washer', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Dryer', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-            ],
-            'living_furnitures' => [
-                ['name' => 'Wiring', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'LED Track Lighting', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Fan', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Painting', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Curtain', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Sofa', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'TV Console', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Coffee Table', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-                ['name' => 'Portrait', 'status' => 'Not Applicable', 'updated_date' => '07/11/2025', 'updated_by' => 'N/A'],
-            ],
+            'room_furnitures' => $this->buildRoomFurnitures($projectId, $renoProgressData),
+            'bath_furnitures' => $this->buildBathFurnitures($projectId, $renoProgressData),
+            'dining_furnitures' => $this->buildDiningFurnitures($projectId, $renoProgressData),
+            'kitchen_furnitures' => $this->buildKitchenFurnitures($projectId, $renoProgressData),
+            'electrical_furnitures' => $this->buildElectricalFurnitures($projectId, $renoProgressData),
+            'living_furnitures' => $this->buildLivingFurnitures($projectId, $renoProgressData),
         ];
 
         return Inertia::render('RenovationProgressDetail', [
             'project' => $project,
             'loading' => false,
         ]);
+    }
+
+    /**
+     * Build room furnitures array from database
+     */
+    private function buildRoomFurnitures(string $projectId, $renoProgressData): array
+    {
+        $items = [];
+        $baseItems = RenoProgressItems::getRoomItems();
+        $filters = RenoProgressItems::getFiltersForTab('room');
+
+        foreach ($baseItems as $itemName) {
+            $item = ['name' => $itemName];
+            
+            // Get status for each filter and track the most recent update
+            $latestUpdate = null;
+            foreach ($filters as $filter) {
+                $recordCollection = $renoProgressData->get('room')?->get($itemName)?->get($filter);
+                $record = $recordCollection ? $recordCollection->first() : null;
+                $item[$filter] = $record ? $record->status : 'Not Applicable';
+                
+                // Track the most recent update across all filters
+                if ($record && $record->last_updated_at) {
+                    if (!$latestUpdate || $record->last_updated_at->gt($latestUpdate)) {
+                        $latestUpdate = $record->last_updated_at;
+                    }
+                }
+            }
+            
+            // Add last updated datetime (use the most recent from any filter)
+            $item['last_updated_at'] = $this->formatDateTimeMY($latestUpdate);
+            
+            $items[] = $item;
+        }
+
+        return $items;
+    }
+
+    /**
+     * Build bath furnitures array from database
+     */
+    private function buildBathFurnitures(string $projectId, $renoProgressData): array
+    {
+        $items = [];
+        $baseItems = RenoProgressItems::getBathItems();
+        $filters = RenoProgressItems::getFiltersForTab('bath');
+
+        foreach ($baseItems as $itemName) {
+            $item = ['name' => $itemName];
+            
+            // Get status for each filter and track the most recent update
+            $latestUpdate = null;
+            foreach ($filters as $filter) {
+                $recordCollection = $renoProgressData->get('bath')?->get($itemName)?->get($filter);
+                $record = $recordCollection ? $recordCollection->first() : null;
+                $item[$filter] = $record ? $record->status : 'Not Applicable';
+                
+                // Track the most recent update across all filters
+                if ($record && $record->last_updated_at) {
+                    if (!$latestUpdate || $record->last_updated_at->gt($latestUpdate)) {
+                        $latestUpdate = $record->last_updated_at;
+                    }
+                }
+            }
+            
+            // Add last updated datetime (use the most recent from any filter)
+            $item['last_updated_at'] = $this->formatDateTimeMY($latestUpdate);
+            
+            $items[] = $item;
+        }
+
+        return $items;
+    }
+
+    /**
+     * Build dining furnitures array from database
+     */
+    private function buildDiningFurnitures(string $projectId, $renoProgressData): array
+    {
+        $items = [];
+        $baseItems = RenoProgressItems::getDiningItems();
+
+        foreach ($baseItems as $itemName) {
+            // Laravel's groupBy converts null to the string 'null'
+            $recordCollection = $renoProgressData->get('dining')?->get($itemName)?->get(null) 
+                ?? $renoProgressData->get('dining')?->get($itemName)?->get('null');
+            $record = $recordCollection ? $recordCollection->first() : null;
+            
+            $items[] = [
+                'name' => $itemName,
+                'status' => $record ? $record->status : 'Not Applicable',
+                'updated_date' => $this->formatDateTimeMY($record ? $record->last_updated_at : null),
+                'updated_by' => $record && $record->updatedByUser 
+                    ? $record->updatedByUser->name 
+                    : 'N/A',
+                'last_updated_at' => $this->formatDateTimeMY($record ? $record->last_updated_at : null),
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Build kitchen furnitures array from database
+     */
+    private function buildKitchenFurnitures(string $projectId, $renoProgressData): array
+    {
+        $items = [];
+        $baseItems = RenoProgressItems::getKitchenItems();
+
+        foreach ($baseItems as $itemName) {
+            // Laravel's groupBy converts null to the string 'null'
+            $recordCollection = $renoProgressData->get('kitchen')?->get($itemName)?->get(null) 
+                ?? $renoProgressData->get('kitchen')?->get($itemName)?->get('null');
+            $record = $recordCollection ? $recordCollection->first() : null;
+            
+            $items[] = [
+                'name' => $itemName,
+                'status' => $record ? $record->status : 'Not Applicable',
+                'updated_date' => $this->formatDateTimeMY($record ? $record->last_updated_at : null),
+                'updated_by' => $record && $record->updatedByUser 
+                    ? $record->updatedByUser->name 
+                    : 'N/A',
+                'last_updated_at' => $this->formatDateTimeMY($record ? $record->last_updated_at : null),
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Build electrical furnitures array from database
+     */
+    private function buildElectricalFurnitures(string $projectId, $renoProgressData): array
+    {
+        $items = [];
+        $baseItems = RenoProgressItems::getElectricalItems();
+
+        foreach ($baseItems as $itemName) {
+            // Laravel's groupBy converts null to the string 'null'
+            $recordCollection = $renoProgressData->get('electrical')?->get($itemName)?->get(null) 
+                ?? $renoProgressData->get('electrical')?->get($itemName)?->get('null');
+            $record = $recordCollection ? $recordCollection->first() : null;
+            
+            $items[] = [
+                'name' => $itemName,
+                'status' => $record ? $record->status : 'Not Applicable',
+                'updated_date' => $this->formatDateTimeMY($record ? $record->last_updated_at : null),
+                'updated_by' => $record && $record->updatedByUser 
+                    ? $record->updatedByUser->name 
+                    : 'N/A',
+                'last_updated_at' => $this->formatDateTimeMY($record ? $record->last_updated_at : null),
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Build living furnitures array from database
+     */
+    private function buildLivingFurnitures(string $projectId, $renoProgressData): array
+    {
+        $items = [];
+        $baseItems = RenoProgressItems::getLivingItems();
+
+        foreach ($baseItems as $itemName) {
+            // Laravel's groupBy converts null to the string 'null'
+            $recordCollection = $renoProgressData->get('living')?->get($itemName)?->get(null) 
+                ?? $renoProgressData->get('living')?->get($itemName)?->get('null');
+            $record = $recordCollection ? $recordCollection->first() : null;
+            
+            $items[] = [
+                'name' => $itemName,
+                'status' => $record ? $record->status : 'Not Applicable',
+                'updated_date' => $this->formatDateTimeMY($record ? $record->last_updated_at : null),
+                'updated_by' => $record && $record->updatedByUser 
+                    ? $record->updatedByUser->name 
+                    : 'N/A',
+                'last_updated_at' => $this->formatDateTimeMY($record ? $record->last_updated_at : null),
+            ];
+        }
+
+        return $items;
     }
 
     /**
@@ -212,19 +372,24 @@ class RenovationProgressController extends Controller
         $request->validate([
             'project_id' => 'required|string',
             'item_name' => 'required|string',
-            'filter' => 'required|string',
+            'filter' => 'nullable|string|in:r1,r2,r3,r4,pr,studio',
             'status' => 'required|string|in:Not Applicable,On Hold,Applied',
-            'tab' => 'required|string',
+            'tab' => 'required|string|in:room,bath,dining,kitchen,electrical,living',
         ]);
-
-        // TODO: Implement database update logic here
-        // For now, just return success
-        // Example:
-        // $project = Project::findOrFail($request->project_id);
-        // Update the item status in the database based on tab and filter
-        // $project->updateItemStatus($request->tab, $request->item_name, $request->filter, $request->status);
-
-        // Return a redirect back for Inertia compatibility (no page reload with preserveState)
+    
+        // Get the authenticated user ID
+        $updatedBy = auth()->id();
+    
+        // Update or create the status record
+        RenoProgress::updateItemStatus(
+            $request->project_id,
+            $request->item_name,
+            $request->tab,
+            $request->filter,
+            $request->status,
+            $updatedBy
+        );
+    
         return back();
     }
 

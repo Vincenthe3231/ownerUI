@@ -3,7 +3,7 @@ export default function FilterChips({ chips, activeFilter, onFilterChange, appBa
 
     return (
         <div 
-            className="flex gap-2 overflow-x-auto scrollbar-hide py-2 sticky z-40 bg-white shadow-sm rounded-sm"
+            className="flex gap-1.5 overflow-x-auto scrollbar-hide py-2 sticky z-40 bg-white shadow-sm rounded-sm p-2"
             style={{
                 top: `${appBarHeight + 80}px`,
                 transition: 'top 0.2s ease-in-out',
