@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react';
 import { NavIcon } from './navIcons';
 
 export default function NavItem({ item, isActive }) {
-    const baseClasses = 'flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-1 sm:py-2 text-[0.65rem] sm:text-sm transition-all duration-300';
+    const baseClasses = 'flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-0.5 sm:py-1 text-[0.65rem] sm:text-sm transition-all duration-300';
     const activeClasses = 'relative -mt-6 sm:-mt-8';
     const inactiveClasses = 'text-gray-500 hover:text-gray-700';
     

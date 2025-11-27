@@ -14,8 +14,8 @@ const getContainerStyles = (zIndex) => ({
 });
 
 const innerContainerStyles = {
-    paddingTop: '10px',
-    paddingBottom: '10px',
+    paddingTop: '8px',
+    paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
     width: '100%',
     minWidth: '320px',
     maxWidth: '100%',
@@ -55,7 +55,7 @@ export default function BottomNavigation({ active = 'quotations' }) {
             <div className="relative" style={innerContainerStyles}>
                 <CurvedOverlay activeIndex={activeIndex} />
                 <div 
-                    className="relative grid grid-cols-5 items-center px-1 sm:px-2 pt-1 sm:pt-2"
+                    className="relative grid grid-cols-5 items-center px-1 sm:px-2"
                     style={gridStyles}
                 >
                     {navItems.map((item) => (

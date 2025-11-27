@@ -520,11 +520,10 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                     {/* Optional Add-On Packages */}
                                     {packages && packages.filter(pkg => pkg.type === 'optional').length > 0 && (
                                         <div 
-                                            className="bg-blue-50 rounded-lg p-4 transition-transform duration-300 ease-in-out hover:scale-105"
+                                            className="bg-blue-50 rounded-lg p-4"
                                             style={{
                                                 boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
                                                 border: '1px solid rgba(59, 130, 246, 0.3)',
-                                                transformOrigin: 'center',
                                             }}
                                         >
                                             <div className="flex items-center space-x-2 mb-4">
@@ -541,13 +540,12 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                                 return (
                                                     <div
                                                         key={pkg.id}
-                                                        className={`bg-white rounded-lg overflow-hidden mb-4 last:mb-0 transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer ${isEnabled ? '' : ''}`}
+                                                        className={`bg-white rounded-lg overflow-hidden mb-4 last:mb-0 transition-all duration-300 ease-in-out cursor-pointer ${isEnabled ? '' : ''}`}
                                                         style={{
                                                             boxShadow: isEnabled 
                                                                 ? '0 4px 16px rgba(216, 30, 67, 0.2), 0 2px 4px rgba(216, 30, 67, 0.15)'
                                                                 : '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
                                                             border: isEnabled ? '2px solid #d81e43' : '1px solid rgba(0, 0, 0, 0.08)',
-                                                            transformOrigin: 'center',
                                                         }}
                                                     >
                                                         <div className="p-4">

@@ -453,16 +453,27 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                         >
                     {activeTab === 'overview' && (
                         <>
-                            {/* 3. Invoice Status Chips Section Card */}
+                            {/* 3. Invoice Status Chips Section Card - Claymorphism Design */}
                             <div 
-                                className="bg-white rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"
+                                className="rounded-2xl hover:scale-[1.02]"
                                 style={{
-                                    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)',
-                                    border: '2px solid rgba(0, 0, 0, 0.12)',
-                                    backgroundColor: '#ffffff',
+                                    background: 'rgba(255, 255, 255, 0.7)',
+                                    backdropFilter: 'blur(20px)',
+                                    WebkitBackdropFilter: 'blur(20px)',
+                                    border: '1px solid rgba(255, 255, 255, 0.5)',
+                                    boxShadow: `
+                                        0 8px 32px rgba(0, 0, 0, 0.08),
+                                        0 4px 16px rgba(0, 0, 0, 0.06),
+                                        0 2px 8px rgba(0, 0, 0, 0.04),
+                                        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                                        inset 0 -1px 0 rgba(0, 0, 0, 0.05)
+                                    `,
                                     transformOrigin: 'center',
+                                    transition: 'transform 0.15s ease-out',
+                                    transitionDelay: '0s',
                                 }}
                             >
+                                {/* Progress Chart Section Card */}
                                 <div className="px-4 py-6 flex flex-col items-center">
                                     {/* Circular Progress Indicator with Segments */}
                                     <div className="relative mb-6" style={{ width: '140px', height: '140px' }}>
@@ -597,11 +608,13 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
 
                             {/* Quote Details Card - Expandable */}
                             <div 
-                                className="bg-white rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                className="bg-white rounded-lg hover:scale-105 cursor-pointer"
                                 style={{
                                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
                                     border: '1px solid rgba(0, 0, 0, 0.08)',
                                     transformOrigin: 'center',
+                                    transition: 'transform 0.15s ease-out',
+                                    transitionDelay: '0s',
                                 }}
                             >
                                 <button
@@ -718,11 +731,13 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
 
                             {/* Payment Summary Card - Expandable */}
                             <div 
-                                className="bg-white rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"
+                                className="bg-white rounded-lg hover:scale-105"
                                 style={{
                                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
                                     border: '1px solid rgba(0, 0, 0, 0.08)',
                                     transformOrigin: 'center',
+                                    transition: 'transform 0.15s ease-out',
+                                    transitionDelay: '0s',
                                 }}
                             >
                                 <div className="p-4">
@@ -1027,11 +1042,13 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                 filteredInvoices.map((invoice, index) => (
                                                 <div
                                                     key={index}
-                                                    className="bg-gray-50 rounded-lg p-4 transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                                    className="bg-gray-50 rounded-lg p-4 hover:scale-105 cursor-pointer"
                                                     style={{
                                                         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
                                                         border: '1px solid rgba(0, 0, 0, 0.08)',
                                                         transformOrigin: 'center',
+                                                        transition: 'transform 0.15s ease-out',
+                                                        transitionDelay: '0s',
                                                     }}
                                                 >
                                                     <div className="flex items-start space-x-3">
@@ -1160,11 +1177,13 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             {packages.filter(pkg => pkg.type === 'standard').map((pkg) => (
                                 <div 
                                     key={pkg.id} 
-                                    className="bg-white rounded-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                    className="bg-white rounded-lg overflow-hidden hover:scale-105 cursor-pointer"
                                     style={{
                                         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
                                         border: '1px solid rgba(0, 0, 0, 0.08)',
                                         transformOrigin: 'center',
+                                        transition: 'transform 0.15s ease-out',
+                                        transitionDelay: '0s',
                                     }}
                                 >
                                     <div className="p-4">
@@ -1211,13 +1230,15 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                         return (
                                             <div
                                                 key={pkg.id}
-                                                className="bg-white rounded-lg overflow-hidden mb-4 last:mb-0 transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer"
+                                                className="bg-white rounded-lg overflow-hidden mb-4 last:mb-0 hover:scale-105 cursor-pointer"
                                                 style={{
                                                     boxShadow: isEnabled 
                                                         ? '0 4px 16px rgba(216, 30, 67, 0.2), 0 2px 4px rgba(216, 30, 67, 0.15)'
                                                         : '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
                                                     border: isEnabled ? '2px solid #d81e43' : '1px solid rgba(0, 0, 0, 0.08)',
                                                     transformOrigin: 'center',
+                                                    transition: 'transform 0.15s ease-out',
+                                                    transitionDelay: '0s',
                                                 }}
                                             >
                                                 <div className="p-4">
@@ -1274,11 +1295,13 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                     {/* ✅ Progressive Payment Table moved OUTSIDE package loop */}
                                     {packages.some(pkg => pkg.type === 'optional' && pkg.progressive_payment) && (
                                         <div 
-                                            className="bg-white rounded-lg p-4 mt-6 transition-transform duration-300 ease-in-out hover:scale-105"
+                                            className="bg-white rounded-lg p-4 mt-6 hover:scale-105"
                                             style={{
                                                 boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
                                                 border: '1px solid rgba(0, 0, 0, 0.08)',
                                                 transformOrigin: 'center',
+                                                transition: 'transform 0.15s ease-out',
+                                                transitionDelay: '0s',
                                             }}
                                         >
                                             <div className="flex items-center space-x-2 mb-3">

@@ -5,6 +5,7 @@ export default function ItemCard({
     index, 
     status, 
     activeTabIcon: ActiveTabIcon,
+    isBlinking = false,
     onTap,
     onTouchStart,
     onTouchMove,
@@ -57,7 +58,7 @@ export default function ItemCard({
                             {item.name}
                         </div>
                         <div 
-                            className="px-3 py-1.5 text-xs font-semibold rounded-full flex-shrink-0 relative overflow-hidden"
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-full flex-shrink-0 relative overflow-hidden ${isBlinking ? 'animate-blink' : ''}`}
                             style={{
                                 ...getStatusBadgeStyle(status),
                                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',

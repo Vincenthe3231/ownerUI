@@ -15,8 +15,7 @@ export default defineConfig({
         host: '0.0.0.0', // Listen on all network interfaces
         port: 5173, // Default Vite port (or your preferred port)
         hmr: {
-            // host: '192.168.0.24', // Your local IP for Hot Module Replacement
-            host: 'localhost',
+            host: '192.168.0.24', // Your local IP for Hot Module Replacement
             port: 5173,
             protocol: 'http',
             path: '/',

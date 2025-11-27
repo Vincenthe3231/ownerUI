@@ -245,8 +245,9 @@ class RenovationProgressController extends Controller
         $baseItems = RenoProgressItems::getDiningItems();
 
         foreach ($baseItems as $itemName) {
-            // Laravel's groupBy converts null to the string 'null'
-            $recordCollection = $renoProgressData->get('dining')?->get($itemName)?->get(null) 
+            // Check for empty string (used for tabs without filters) or null
+            $recordCollection = $renoProgressData->get('dining')?->get($itemName)?->get('') 
+                ?? $renoProgressData->get('dining')?->get($itemName)?->get(null)
                 ?? $renoProgressData->get('dining')?->get($itemName)?->get('null');
             $record = $recordCollection ? $recordCollection->first() : null;
             
@@ -273,8 +274,9 @@ class RenovationProgressController extends Controller
         $baseItems = RenoProgressItems::getKitchenItems();
 
         foreach ($baseItems as $itemName) {
-            // Laravel's groupBy converts null to the string 'null'
-            $recordCollection = $renoProgressData->get('kitchen')?->get($itemName)?->get(null) 
+            // Check for empty string (used for tabs without filters) or null
+            $recordCollection = $renoProgressData->get('kitchen')?->get($itemName)?->get('') 
+                ?? $renoProgressData->get('kitchen')?->get($itemName)?->get(null)
                 ?? $renoProgressData->get('kitchen')?->get($itemName)?->get('null');
             $record = $recordCollection ? $recordCollection->first() : null;
             
@@ -301,8 +303,9 @@ class RenovationProgressController extends Controller
         $baseItems = RenoProgressItems::getElectricalItems();
 
         foreach ($baseItems as $itemName) {
-            // Laravel's groupBy converts null to the string 'null'
-            $recordCollection = $renoProgressData->get('electrical')?->get($itemName)?->get(null) 
+            // Check for empty string (used for tabs without filters) or null
+            $recordCollection = $renoProgressData->get('electrical')?->get($itemName)?->get('') 
+                ?? $renoProgressData->get('electrical')?->get($itemName)?->get(null)
                 ?? $renoProgressData->get('electrical')?->get($itemName)?->get('null');
             $record = $recordCollection ? $recordCollection->first() : null;
             
@@ -329,8 +332,9 @@ class RenovationProgressController extends Controller
         $baseItems = RenoProgressItems::getLivingItems();
 
         foreach ($baseItems as $itemName) {
-            // Laravel's groupBy converts null to the string 'null'
-            $recordCollection = $renoProgressData->get('living')?->get($itemName)?->get(null) 
+            // Check for empty string (used for tabs without filters) or null
+            $recordCollection = $renoProgressData->get('living')?->get($itemName)?->get('') 
+                ?? $renoProgressData->get('living')?->get($itemName)?->get(null)
                 ?? $renoProgressData->get('living')?->get($itemName)?->get('null');
             $record = $recordCollection ? $recordCollection->first() : null;
             
@@ -372,20 +376,31 @@ class RenovationProgressController extends Controller
         $request->validate([
             'project_id' => 'required|string',
             'item_name' => 'required|string',
-            'filter' => 'nullable|string|in:r1,r2,r3,r4,pr,studio',
+            'filter' => 'nullable|string',
             'status' => 'required|string|in:Not Applicable,On Hold,Applied',
             'tab' => 'required|string|in:room,bath,dining,kitchen,electrical,living',
         ]);
+        
+        // Additional validation: if filter is provided and not empty, it must be a valid filter value
+        if ($request->has('filter') && $request->filter !== null && $request->filter !== '') {
+            $request->validate([
+                'filter' => 'in:r1,r2,r3,r4,pr,studio',
+            ]);
+        }
     
         // Get the authenticated user ID
         $updatedBy = auth()->id();
+    
+        // Convert null filter to empty string for tabs without filters
+        // MySQL ENUM columns can have issues with NULL, so we use empty string instead
+        $filter = $request->filter ?? '';
     
         // Update or create the status record
         RenoProgress::updateItemStatus(
             $request->project_id,
             $request->item_name,
             $request->tab,
-            $request->filter,
+            $filter,
             $request->status,
             $updatedBy
         );

@@ -37,6 +37,9 @@ class RenoProgress extends Model
      */
     public static function updateItemStatus($projectId, $itemName, $tab, $filter, $status, $updatedBy = null)
     {
+        // Convert null to empty string for MySQL ENUM compatibility
+        $filter = $filter ?? '';
+        
         return self::updateOrCreate(
             [
                 'project_id' => $projectId,
@@ -57,6 +60,9 @@ class RenoProgress extends Model
      */
     public static function getItemStatus($projectId, $itemName, $tab, $filter)
     {
+        // Convert null to empty string for MySQL ENUM compatibility
+        $filter = $filter ?? '';
+        
         $record = self::where('project_id', $projectId)
             ->where('item_name', $itemName)
             ->where('tab', $tab)

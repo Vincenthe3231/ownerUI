@@ -10,6 +10,7 @@ export default function ContentSection({
     onSearchClear,
     activeTabIcon,
     getItemStatus,
+    isItemBlinking,
     onItemTap,
     onItemTouchStart,
     onItemTouchMove,
@@ -48,6 +49,7 @@ export default function ContentSection({
                 {items.length > 0 ? (
                     items.map((item, index) => {
                         const status = getItemStatus(item, index);
+                        const isBlinking = isItemBlinking ? isItemBlinking(item, index) : false;
                         return (
                             <ItemCard
                                 key={index}
@@ -55,6 +57,7 @@ export default function ContentSection({
                                 index={index}
                                 status={status}
                                 activeTabIcon={activeTabIcon}
+                                isBlinking={isBlinking}
                                 onTap={() => onItemTap(item, index, status)}
                                 onTouchStart={(e) => onItemTouchStart(e, item, index)}
                                 onTouchMove={onItemTouchMove}

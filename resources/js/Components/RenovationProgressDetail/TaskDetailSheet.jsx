@@ -26,7 +26,7 @@ export default function TaskDetailSheet({ selectedItem, activeFilter, onClose })
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
                     <div className="flex items-center gap-2 mb-4">
                         <User className="w-5 h-5 text-gray-400" />
-                        <h4 className="text-base font-semibold text-gray-900">Details</h4>
+                        <h4 className="text-base font-semibold text-gray-900">On-Site Team</h4>
                     </div>
                     
                     <div className="mb-4">
@@ -36,6 +36,7 @@ export default function TaskDetailSheet({ selectedItem, activeFilter, onClose })
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d81e43] focus:border-transparent resize-none"
                             rows="3"
                             defaultValue={selectedItem.comment || ''}
+                            disabled
                         />
                     </div>
                     

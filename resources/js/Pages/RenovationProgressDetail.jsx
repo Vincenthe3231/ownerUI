@@ -42,7 +42,7 @@ export default function RenovationProgressDetail({ project, loading = false, pro
     const contentSectionRef = useRef(null);
     
     const appBarHeight = useAppBarHeight();
-    const { getItemStatus, changeItemStatus } = useItemStatus(project, activeTab, activeFilter);
+    const { getItemStatus, changeItemStatus, isItemBlinking } = useItemStatus(project, activeTab, activeFilter);
     const { showCoachMark, coachMarkSlide, openCoachMark, closeCoachMark, nextSlide, previousSlide } = useCoachMarkHook();
     const { handleItemTouchStart, handleItemTouchMove, handleItemTouchEnd } = useSwipeGestures(
         changeItemStatus, getItemStatus, setSelectedItem
@@ -141,6 +141,7 @@ export default function RenovationProgressDetail({ project, loading = false, pro
                         onSearchClear={() => setSearchQuery('')}
                         activeTabIcon={ActiveTabIcon}
                         getItemStatus={getItemStatus}
+                        isItemBlinking={isItemBlinking}
                         onItemTap={handleItemTap}
                         onItemTouchStart={handleItemTouchStart}
                         onItemTouchMove={handleItemTouchMove}
