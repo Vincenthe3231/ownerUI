@@ -48,12 +48,12 @@ export default function BottomSheet({
 
                 {/* Bottom Sheet */}
                 <TransitionChild
-                    enter="ease-out duration-300"
-                    enterFrom="translate-y-full"
-                    enterTo="translate-y-0"
+                    enter="ease-out duration-400"
+                    enterFrom="translate-y-full opacity-0"
+                    enterTo="translate-y-0 opacity-100"
                     leave="ease-in duration-300"
-                    leaveFrom="translate-y-0"
-                    leaveTo="translate-y-full"
+                    leaveFrom="translate-y-0 opacity-100"
+                    leaveTo="translate-y-full opacity-0"
                 >
                     <Dialog.Panel
                         className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl flex flex-col"
