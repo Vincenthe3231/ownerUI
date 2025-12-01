@@ -43,9 +43,10 @@ export function useSwipeDown(onSwipeDown, threshold = 50) {
     };
 
     // Calculate transform based on drag
+    // Only return transform when actively dragging downward
     const dragTransform = isDragging && currentY > startY 
         ? `translateY(${Math.max(0, currentY - startY)}px)` 
-        : 'translateY(0)';
+        : null;
 
     return {
         handleTouchStart,

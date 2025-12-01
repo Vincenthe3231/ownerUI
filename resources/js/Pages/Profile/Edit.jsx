@@ -222,10 +222,8 @@ export default function Edit() {
                     
                     {/* Logo - positioned above with high z-index */}
                     <div className="relative z-20 px-4 pt-6">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center">
-                                <ApplicationLogo className="h-8 w-auto mr-2" />
-                            </div>
+                        <div className="flex items-center mb-6">
+                            <ApplicationLogo className="h-8 w-auto" />
                         </div>
                     </div>
                     

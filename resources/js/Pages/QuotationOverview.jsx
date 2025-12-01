@@ -1,10 +1,11 @@
 import { Head } from '@inertiajs/react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import BottomSheet from '@/Components/BottomSheet';
 import BottomNavigation from '@/Components/BottomNavigation';
 import AppBar from '@/Components/AppBar';
 import Tabs from '@/Components/Tabs';
+import Snackbar from '@/Components/Snackbar';
 import { QUOTATION_OVERVIEW_CONFIG, PAGE_TITLES } from './QuotationOverview/constants';
 import { useSwipeGestures } from './QuotationOverview/hooks/useSwipeGestures';
 import { useProgressAnimation } from './QuotationOverview/hooks/useProgressAnimation';
@@ -26,6 +27,9 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [slideOffset, setSlideOffset] = useState(0);
     const contentRef = useRef(null);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [showSnackbar, setShowSnackbar] = useState(false);
+    const prevTabRef = useRef(activeTab);
     
     // Additional state
     const [installmentMonths, setInstallmentMonths] = useState(QUOTATION_OVERVIEW_CONFIG.DEFAULT_INSTALLMENT_MONTHS);
@@ -50,6 +54,13 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
         
         if (newIndex === currentIndex) return;
         
+        // Show snackbar with tab name
+        const newTab = QUOTATION_OVERVIEW_CONFIG.TABS.find(tab => tab.id === tabId);
+        if (newTab) {
+            setSnackbarMessage(newTab.label);
+            setShowSnackbar(true);
+        }
+        
         setIsTransitioning(true);
         if (direction) {
             setSwipeDirection(direction);
@@ -60,6 +71,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
             }
             
             setActiveTab(tabId);
+            prevTabRef.current = tabId;
             
             requestAnimationFrame(() => {
                 setSlideOffset(0);
@@ -67,6 +79,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
         } else {
             setSlideOffset(0);
             setActiveTab(tabId);
+            prevTabRef.current = tabId;
         }
         
         setTimeout(() => {
@@ -74,6 +87,18 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
             setSwipeDirection(null);
         }, QUOTATION_OVERVIEW_CONFIG.TRANSITION_DURATION);
     };
+    
+    // Show snackbar when tab changes via swipe
+    useEffect(() => {
+        if (activeTab !== prevTabRef.current && prevTabRef.current !== 'overview') {
+            const currentTab = QUOTATION_OVERVIEW_CONFIG.TABS.find(tab => tab.id === activeTab);
+            if (currentTab) {
+                setSnackbarMessage(currentTab.label);
+                setShowSnackbar(true);
+            }
+        }
+        prevTabRef.current = activeTab;
+    }, [activeTab]);
 
     // Custom hooks
     const { handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeGestures(
@@ -156,13 +181,13 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                             key={activeTab}
                             className="space-y-4 w-full"
                             style={{
-                                ...(isTransitioning && slideOffset !== 0 ? {
+                                ...(isTransitioning ? {
                                     transform: `translate3d(${slideOffset}%, 0, 0)`,
                                     transition: 'transform 0.3s ease-in-out',
-                                    opacity: 0.7,
+                                    opacity: slideOffset !== 0 ? 0.7 : 1,
                                     willChange: 'transform',
                                 } : {
-                                    transform: 'none',
+                                    transform: 'translate3d(0, 0, 0)',
                                     transition: 'none',
                                     opacity: 1,
                                     willChange: 'auto',
@@ -260,81 +285,6 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                                     />
                                                 );
                                             })}
-
-                                            {/* Progressive Payment Table */}
-                                            {packages.some(pkg => pkg.type === 'optional' && pkg.progressive_payment) && (
-                                                <div 
-                                                    className="bg-white rounded-lg p-4 mt-6 hover:scale-105"
-                                                    style={{
-                                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
-                                                        border: '1px solid rgba(0, 0, 0, 0.08)',
-                                                        transformOrigin: 'center',
-                                                        transition: 'transform 0.15s ease-out',
-                                                        transitionDelay: '0s',
-                                                    }}
-                                                >
-                                                    <div className="flex items-center space-x-2 mb-3">
-                                                        <svg
-                                                            className="w-5 h-5 text-gray-600"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                                            />
-                                                        </svg>
-                                                        <h4 className="text-sm font-semibold text-gray-900">
-                                                            Progressive Payment of the Contract Sum
-                                                        </h4>
-                                                    </div>
-
-                                                    <div className="overflow-x-auto">
-                                                        <table className="w-full text-sm">
-                                                            <thead>
-                                                                <tr className="border-b border-gray-200">
-                                                                    <th className="text-left py-2 text-gray-600 font-medium">Description</th>
-                                                                    <th className="text-center py-2 text-gray-600 font-medium">%</th>
-                                                                    <th className="text-right py-2 text-gray-600 font-medium">Amount (RM)</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {packages
-                                                                    .filter(pkg => pkg.type === 'optional' && pkg.progressive_payment)
-                                                                    .flatMap(pkg => pkg.progressive_payment)
-                                                                    .map((payment, idx) => {
-                                                                        const calculatedAmount = (paymentAmounts.totalAmount * payment.percentage) / 100;
-                                                                        return (
-                                                                            <tr key={idx} className="border-b border-gray-100">
-                                                                                <td className="py-2 text-gray-900">{payment.description}</td>
-                                                                                <td className="text-center py-2 text-gray-900">{payment.percentage}%</td>
-                                                                                <td className="text-right py-2 text-gray-900 font-semibold">
-                                                                                    {calculatedAmount.toLocaleString('en-US', {
-                                                                                        minimumFractionDigits: 2,
-                                                                                        maximumFractionDigits: 2,
-                                                                                    })}
-                                                                                </td>
-                                                                            </tr>
-                                                                        );
-                                                                    })}
-                                                                <tr className="font-bold">
-                                                                    <td className="py-2 text-gray-900">Total</td>
-                                                                    <td className="text-center py-2 text-gray-900">100%</td>
-                                                                    <td className="text-right py-2 text-gray-900">
-                                                                        {paymentAmounts.totalAmount.toLocaleString('en-US', {
-                                                                            minimumFractionDigits: 2,
-                                                                            maximumFractionDigits: 2,
-                                                                        })}
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -443,9 +393,17 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                 onClose={() => setSelectedPackage(null)}
                 title={selectedPackage ? selectedPackage.name : 'Package Details'}
                 lockScroll={false}
+                contentKey={selectedPackage ? selectedPackage.id : null}
             >
                 {selectedPackage && <PackageTable pkg={selectedPackage} />}
             </BottomSheet>
+
+            {/* Snackbar */}
+            <Snackbar
+                message={snackbarMessage}
+                show={showSnackbar}
+                onClose={() => setShowSnackbar(false)}
+            />
         </>
     );
 }

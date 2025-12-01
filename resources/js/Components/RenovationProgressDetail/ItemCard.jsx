@@ -7,22 +7,15 @@ export default function ItemCard({
     activeTabIcon: ActiveTabIcon,
     isBlinking = false,
     onTap,
-    onTouchStart,
-    onTouchMove,
-    onTouchEnd,
 }) {
     return (
         <div
             onClick={onTap}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
             className="bg-gray-50 rounded-lg p-4 transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
             style={{
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
                 border: '1px solid rgba(0, 0, 0, 0.08)',
                 transformOrigin: 'center',
-                touchAction: 'pan-y',
             }}
         >
             <div className="flex items-start space-x-3">

@@ -12,16 +12,11 @@ export default function ContentSection({
     getItemStatus,
     isItemBlinking,
     onItemTap,
-    onItemTouchStart,
-    onItemTouchMove,
-    onItemTouchEnd,
     onHelpClick,
     searchInputRef,
-    contentSectionRef,
 }) {
     return (
         <div 
-            ref={contentSectionRef}
             className="bg-white rounded-2xl p-4"
             style={{
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
@@ -59,9 +54,6 @@ export default function ContentSection({
                                 activeTabIcon={activeTabIcon}
                                 isBlinking={isBlinking}
                                 onTap={() => onItemTap(item, index, status)}
-                                onTouchStart={(e) => onItemTouchStart(e, item, index)}
-                                onTouchMove={onItemTouchMove}
-                                onTouchEnd={onItemTouchEnd}
                             />
                         );
                     })

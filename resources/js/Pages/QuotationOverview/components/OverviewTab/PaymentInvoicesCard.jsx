@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import { getGlossyChipStyle } from '../../utils/getGlossyChipStyle';
 
@@ -9,6 +10,18 @@ export default function PaymentInvoicesCard({
     hasBeenExpanded,
     onToggle,
 }) {
+    const [isFilterTransitioning, setIsFilterTransitioning] = useState(false);
+    const [filterSlideOffset, setFilterSlideOffset] = useState(0);
+    const filterOrder = ['all', 'paid', 'overdue', 'top5'];
+    
+    // Swipe gesture refs
+    const contentSectionRef = useRef(null);
+    const touchStartX = useRef(0);
+    const touchStartY = useRef(0);
+    const touchEndX = useRef(0);
+    const touchEndY = useRef(0);
+    const touchStartTime = useRef(0);
+    
     // Filter invoices based on selected filter
     const getFilteredInvoices = () => {
         let filteredInvoices = [...invoices];
@@ -27,6 +40,161 @@ export default function PaymentInvoicesCard({
     };
 
     const filteredInvoices = getFilteredInvoices();
+    
+    // Handle filter change with animation
+    const handleFilterChange = (newFilter) => {
+        // Handle toggle behavior: if clicking the same filter, toggle to 'all'
+        const targetFilter = newFilter === invoiceFilter ? 'all' : newFilter;
+        
+        if (targetFilter === invoiceFilter || isFilterTransitioning) return;
+        
+        const currentIndex = filterOrder.indexOf(invoiceFilter);
+        const newIndex = filterOrder.indexOf(targetFilter);
+        const direction = newIndex > currentIndex ? 'left' : 'right';
+        
+        setIsFilterTransitioning(true);
+        
+        // When sliding left (next filter), new content comes from right (100%)
+        // When sliding right (previous filter), new content comes from left (-100%)
+        if (direction === 'left') {
+            setFilterSlideOffset(100); // New content starts from right
+        } else {
+            setFilterSlideOffset(-100); // New content starts from left
+        }
+        
+        setInvoiceFilter(targetFilter);
+        
+        requestAnimationFrame(() => {
+            setFilterSlideOffset(0); // Slide to center
+        });
+        
+        setTimeout(() => {
+            setIsFilterTransitioning(false);
+        }, 300);
+    };
+    
+    // Swipe gesture handlers
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+        touchStartTime.current = Date.now();
+        
+        // Check if touch started inside content section and stop propagation
+        const contentSection = contentSectionRef.current;
+        if (contentSection && isExpanded) {
+            const contentRect = contentSection.getBoundingClientRect();
+            const touchY = e.touches[0].clientY;
+            if (touchY >= contentRect.top && touchY <= contentRect.bottom) {
+                e.stopPropagation();
+            }
+        }
+    };
+    
+    const handleTouchMove = (e) => {
+        if (touchStartX.current !== 0) {
+            touchEndX.current = e.touches[0].clientX;
+            touchEndY.current = e.touches[0].clientY;
+            
+            // Stop propagation if moving within content area
+            const contentSection = contentSectionRef.current;
+            if (contentSection && isExpanded) {
+                const contentRect = contentSection.getBoundingClientRect();
+                const touchY = e.touches[0].clientY;
+                if (touchY >= contentRect.top && touchY <= contentRect.bottom) {
+                    e.stopPropagation();
+                }
+            }
+        }
+    };
+    
+    const handleTouchEnd = (e) => {
+        if (touchStartX.current === 0) return;
+        
+        const swipeThreshold = 60;
+        const maxVerticalSwipe = 100;
+        const maxSwipeTime = 600;
+        
+        const horizontalDiff = touchStartX.current - touchEndX.current;
+        const verticalDiff = Math.abs(touchStartY.current - touchEndY.current);
+        const timeDiff = Date.now() - touchStartTime.current;
+        
+        // Check if touch ended on an interactive element
+        const endTarget = e.target;
+        const isInteractiveEnd = endTarget?.closest('button, a, input, select, textarea, [role="button"], [role="switch"]');
+        
+        const touch = e.changedTouches[0];
+        const elementAtEnd = document.elementFromPoint(touch.clientX, touch.clientY);
+        const isInteractiveAtEnd = elementAtEnd?.closest('button, a, input, select, textarea, [role="button"], [role="switch"]');
+        
+        const isInteractive = isInteractiveEnd || isInteractiveAtEnd;
+        if (isInteractive) {
+            if (Math.abs(horizontalDiff) < 40 && verticalDiff < 40) {
+                touchStartX.current = 0;
+                touchStartY.current = 0;
+                touchEndX.current = 0;
+                touchEndY.current = 0;
+                touchStartTime.current = 0;
+                return;
+            }
+        }
+        
+        // Only trigger swipe if conditions are met
+        if (
+            Math.abs(horizontalDiff) > swipeThreshold &&
+            verticalDiff < maxVerticalSwipe &&
+            timeDiff < maxSwipeTime &&
+            Math.abs(horizontalDiff) > verticalDiff * 1.5
+        ) {
+            if (!(isInteractive && Math.abs(horizontalDiff) < 50 && verticalDiff < 50)) {
+                // Check if touch started inside content section
+                const contentSection = contentSectionRef.current;
+                const touchStartYPos = touchStartY.current;
+                const touchEndYPos = touch.clientY;
+                
+                let isInsideContent = false;
+                if (contentSection) {
+                    const contentRect = contentSection.getBoundingClientRect();
+                    isInsideContent = (
+                        (touchStartYPos >= contentRect.top && touchStartYPos <= contentRect.bottom) ||
+                        (touchEndYPos >= contentRect.top && touchEndYPos <= contentRect.bottom)
+                    );
+                }
+                
+                if (isInsideContent && isExpanded) {
+                    // Swipe inside content section - switch filter
+                    const currentFilterIndex = filterOrder.indexOf(invoiceFilter);
+                    let filterChanged = false;
+                    
+                    if (horizontalDiff > 0) {
+                        // Swipe left - next filter
+                        if (currentFilterIndex < filterOrder.length - 1) {
+                            handleFilterChange(filterOrder[currentFilterIndex + 1]);
+                            filterChanged = true;
+                        }
+                    } else {
+                        // Swipe right - previous filter
+                        if (currentFilterIndex > 0) {
+                            handleFilterChange(filterOrder[currentFilterIndex - 1]);
+                            filterChanged = true;
+                        }
+                    }
+                    
+                    // Stop event propagation to prevent tab switching
+                    if (filterChanged) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                }
+            }
+        }
+        
+        // Reset touch state
+        touchStartX.current = 0;
+        touchStartY.current = 0;
+        touchEndX.current = 0;
+        touchEndY.current = 0;
+        touchStartTime.current = 0;
+    };
 
     return (
         <div 
@@ -57,6 +225,7 @@ export default function PaymentInvoicesCard({
 
             {/* Expandable Invoice List */}
             <div
+                ref={contentSectionRef}
                 className={`expandable-content ${isExpanded ? 'expanded' : ''}`}
                 style={{
                     maxHeight: isExpanded ? '2000px' : '0',
@@ -65,13 +234,16 @@ export default function PaymentInvoicesCard({
                     overflow: isExpanded ? 'visible' : 'hidden',
                     position: 'relative',
                 }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
             >
                 <div className="border-t border-gray-100">
                     {/* Filter Chips - Sticky */}
                     <div 
                         className="flex flex-wrap gap-2 px-4 pt-3 pb-2 sticky z-20"
                         style={{
-                            top: 'calc(var(--app-bar-height, 3.5rem) + 3rem)',
+                            top: 'calc(var(--app-bar-height, 3.5rem) + 4.0rem)',
                             isolation: 'isolate',
                             backgroundColor: 'rgba(255, 255, 255, 0.98)',
                             backdropFilter: 'blur(12px)',
@@ -83,7 +255,7 @@ export default function PaymentInvoicesCard({
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setInvoiceFilter('all');
+                                handleFilterChange('all');
                             }}
                             className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden transition-all"
                             style={{
@@ -106,7 +278,7 @@ export default function PaymentInvoicesCard({
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setInvoiceFilter(invoiceFilter === 'paid' ? 'all' : 'paid');
+                                handleFilterChange('paid');
                             }}
                             className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden transition-all"
                             style={{
@@ -129,7 +301,7 @@ export default function PaymentInvoicesCard({
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setInvoiceFilter(invoiceFilter === 'overdue' ? 'all' : 'overdue');
+                                handleFilterChange('overdue');
                             }}
                             className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden transition-all"
                             style={{
@@ -152,7 +324,7 @@ export default function PaymentInvoicesCard({
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setInvoiceFilter(invoiceFilter === 'top5' ? 'all' : 'top5');
+                                handleFilterChange('top5');
                             }}
                             className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden transition-all"
                             style={{
@@ -173,13 +345,29 @@ export default function PaymentInvoicesCard({
                     </div>
 
                     {/* Filtered Invoices */}
-                    <div className="px-4 pb-2 pt-2 space-y-4">
-                        {filteredInvoices.length === 0 ? (
-                            <div className="text-center py-8 text-gray-500 text-sm">
-                                No invoices found.
-                            </div>
-                        ) : (
-                            filteredInvoices.map((invoice, index) => (
+                    <div className="px-4 pb-2 pt-2 space-y-4 relative overflow-hidden">
+                        <div
+                            key={invoiceFilter}
+                            style={{
+                                ...(isFilterTransitioning ? {
+                                    transform: `translate3d(${filterSlideOffset}%, 0, 0)`,
+                                    transition: 'transform 0.3s ease-in-out',
+                                    opacity: filterSlideOffset !== 0 ? 0.7 : 1,
+                                    willChange: 'transform',
+                                } : {
+                                    transform: 'translate3d(0, 0, 0)',
+                                    transition: 'none',
+                                    opacity: 1,
+                                    willChange: 'auto',
+                                }),
+                            }}
+                        >
+                            {filteredInvoices.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500 text-sm">
+                                    No invoices found.
+                                </div>
+                            ) : (
+                                filteredInvoices.map((invoice, index) => (
                                 <div
                                     key={index}
                                     className="bg-gray-50 rounded-lg p-4 hover:scale-105 cursor-pointer"
@@ -295,7 +483,8 @@ export default function PaymentInvoicesCard({
                                     </div>
                                 </div>
                             ))
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

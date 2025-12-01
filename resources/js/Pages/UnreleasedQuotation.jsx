@@ -1,11 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import BottomSheet from '@/Components/BottomSheet';
 import BottomNavigation from '@/Components/BottomNavigation';
 import AppBar from '@/Components/AppBar';
 import Tabs from '@/Components/Tabs';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import Snackbar from '@/Components/Snackbar';
+import { ChevronRight } from 'lucide-react';
 
 export default function UnreleasedQuotation({ quotation, invoices = [], packages = [] }) {
     const [activeTab, setActiveTab] = useState('quotation-order');
@@ -28,7 +29,10 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [acknowledgeRisk, setAcknowledgeRisk] = useState(false);
-    const [showPaymentDetails, setShowPaymentDetails] = useState(false);
+    const [isPaymentDetailsExpanded, setIsPaymentDetailsExpanded] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [showSnackbar, setShowSnackbar] = useState(false);
+    const prevTabRef = useRef(activeTab);
     
     const tabs = [
         { id: 'quotation-order', label: <>Quotation <br /> Order</> },
@@ -47,6 +51,14 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
         
         if (newIndex === currentIndex) return;
         
+        // Show snackbar with tab name
+        const newTab = tabs.find(tab => tab.id === tabId);
+        if (newTab) {
+            const tabLabel = typeof newTab.label === 'string' ? newTab.label : 'Quotation Order';
+            setSnackbarMessage(tabLabel);
+            setShowSnackbar(true);
+        }
+        
         setIsTransitioning(true);
         if (direction) {
             setSwipeDirection(direction);
@@ -57,6 +69,7 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
             }
             
             setActiveTab(tabId);
+            prevTabRef.current = tabId;
             
             requestAnimationFrame(() => {
                 setSlideOffset(0);
@@ -64,6 +77,7 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
         } else {
             setSlideOffset(0);
             setActiveTab(tabId);
+            prevTabRef.current = tabId;
         }
         
         setTimeout(() => {
@@ -71,6 +85,19 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
             setSwipeDirection(null);
         }, 300);
     };
+    
+    // Show snackbar when tab changes via swipe
+    useEffect(() => {
+        if (activeTab !== prevTabRef.current && prevTabRef.current !== 'quotation-order') {
+            const currentTab = tabs.find(tab => tab.id === activeTab);
+            if (currentTab) {
+                const tabLabel = typeof currentTab.label === 'string' ? currentTab.label : 'Quotation Order';
+                setSnackbarMessage(tabLabel);
+                setShowSnackbar(true);
+            }
+        }
+        prevTabRef.current = activeTab;
+    }, [activeTab]);
     
     const handleSwipeLeft = () => {
         const currentIndex = getCurrentTabIndex();
@@ -327,13 +354,13 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                             key={activeTab}
                             className="space-y-4 w-full"
                             style={{
-                                ...(isTransitioning && slideOffset !== 0 ? {
+                                ...(isTransitioning ? {
                                     transform: `translate3d(${slideOffset}%, 0, 0)`,
                                     transition: 'transform 0.3s ease-in-out',
-                                    opacity: 0.7,
+                                    opacity: slideOffset !== 0 ? 0.7 : 1,
                                     willChange: 'transform',
                                 } : {
-                                    transform: 'none',
+                                    transform: 'translate3d(0, 0, 0)',
                                     transition: 'none',
                                     opacity: 1,
                                     willChange: 'auto',
@@ -441,13 +468,12 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                                 <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                                 </svg>
-                                                <button
-                                                    onClick={() => setShowPaymentDetails(true)}
-                                                    className="flex items-center justify-between w-full px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <span className="text-gray-700 truncate">RenoNow PayLater</span>
-                                                    <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0 ml-1" />
-                                                </button>
+                                                <input
+                                                    type="text"
+                                                    value="RenoNow PayLater"
+                                                    disabled
+                                                    className="w-full px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md bg-gray-100 text-gray-700 cursor-not-allowed"
+                                                />
                                             </div>
                                             
                                             {/* Kickstart Message */}
@@ -464,11 +490,122 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                                         {/* View Details Link */}
                                         <div className="px-3 pb-3 sm:px-4 sm:pb-4 text-right">
                                             <button
-                                                onClick={() => setShowPaymentDetails(!showPaymentDetails)}
+                                                onClick={() => setIsPaymentDetailsExpanded(!isPaymentDetailsExpanded)}
                                                 className="text-xs sm:text-sm text-[#d81e43] hover:text-[#d81e43]/80 underline font-medium"
                                             >
-                                                {showPaymentDetails ? 'Hide Details' : 'View Details'}
+                                                {isPaymentDetailsExpanded ? 'Hide Details' : 'View Details'}
                                             </button>
+                                        </div>
+                                        
+                                        {/* Expandable Payment Details */}
+                                        <div className={`expandable-content ${isPaymentDetailsExpanded ? 'expanded' : ''}`}>
+                                            <div className="px-3 pb-3 sm:px-4 sm:pb-4 pt-3 border-t border-gray-100">
+                                                <div className="space-y-1" style={{ lineHeight: '1.3' }}>
+                                                    {/* Total Renovation */}
+                                                    <div className="grid grid-cols-2 gap-2 items-center">
+                                                        <div className="text-xs text-gray-700">Total Renovation:</div>
+                                                        <div className="text-xs font-bold text-gray-900 text-right">
+                                                            RM {totalRenovation.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Individual Add-on Packages */}
+                                                    {enabledOptionalPackages.length > 0 && (
+                                                        <>
+                                                            {enabledOptionalPackages.map((pkg, index) => {
+                                                                // Calculate price based on package name
+                                                                let packagePrice = 0;
+                                                                if (pkg.name && pkg.name.includes('ROI-MAX')) {
+                                                                    packagePrice = 8750.00 * (pkg.quantity || 1);
+                                                                } else if (pkg.name && pkg.name.includes('Air Conditioning')) {
+                                                                    packagePrice = 1575.00 * (pkg.quantity || 1);
+                                                                } else {
+                                                                    packagePrice = parseFloat(pkg.price || pkg.amount || 0) * (pkg.quantity || 1);
+                                                                }
+                                                                
+                                                                const packageNumber = index + 1;
+                                                                return (
+                                                                    <div key={pkg.id} className="grid grid-cols-2 gap-2 items-center">
+                                                                        <div className="text-xs text-gray-700">
+                                                                            Total Add-on Option {packageNumber} ({pkg.name}):
+                                                                        </div>
+                                                                        <div className="text-xs text-gray-600 text-right">
+                                                                            RM {packagePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </>
+                                                    )}
+
+                                                    {/* Discount Section */}
+                                                    <div className="grid grid-cols-2 gap-2 items-center">
+                                                        <div className="text-xs font-semibold text-green-700">Discount:</div>
+                                                        <div className="text-xs font-semibold text-green-700 text-right">
+                                                            - RM {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <div className="text-[0.65rem] text-gray-600">Test Bonus</div>
+                                                        <div></div>
+                                                    </div>
+
+                                                    {/* Total Quotation Amount */}
+                                                    <div className="grid grid-cols-2 gap-2 items-center">
+                                                        <div className="text-xs text-gray-700">Total Quotation Amount:</div>
+                                                        <div className="text-xs font-bold text-gray-900 text-right">
+                                                            RM {totalQuotationAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Payment Terms */}
+                                                    <div className="grid grid-cols-2 gap-2 items-start">
+                                                        <div>
+                                                            <div className="text-xs text-gray-700">Payment Terms:</div>
+                                                            <div className="flex items-center text-xs text-gray-500 mt-0.5">
+                                                                <span>(Terms & Conditions)</span>
+                                                                <button
+                                                                    onClick={() => setShowTermsModal(true)}
+                                                                    className="ml-1"
+                                                                >
+                                                                    <svg
+                                                                        className="w-3 h-3 text-yellow-500"
+                                                                        fill="currentColor"
+                                                                        viewBox="0 0 20 20"
+                                                                    >
+                                                                        <path
+                                                                            fillRule="evenodd"
+                                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                                            clipRule="evenodd"
+                                                                        />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-xs text-gray-700 text-right">RenoNow PayLater</div>
+                                                    </div>
+
+                                                    {/* Initial Down Payment */}
+                                                    <div className="grid grid-cols-2 gap-2 items-center">
+                                                        <div className="text-xs text-gray-700">Initial Down Payment:</div>
+                                                        <div className="text-xs font-bold text-gray-900 text-right">
+                                                            RM {initialDownPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Balance Payment */}
+                                                    <div className="grid grid-cols-2 gap-2 items-center">
+                                                        <div className="text-xs text-gray-700">Balance Payment:</div>
+                                                        <div className="text-xs font-bold text-gray-900 text-right">
+                                                            RM {balancePayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <div className="text-[0.55rem] text-gray-600">Pay through RPM</div>
+                                                        <div></div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -687,132 +824,6 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
             {/* Bottom Navigation */}
             <BottomNavigation active="quotations" />
 
-            {/* Payment Details Bottom Sheet */}
-            <BottomSheet
-                show={showPaymentDetails}
-                onClose={() => setShowPaymentDetails(false)}
-                title="Payment Details"
-                lockScroll={false}
-            >
-                <div className="p-4 space-y-6">
-                    {/* Total Renovation */}
-                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <div className="text-base font-semibold text-gray-900">Total Renovation:</div>
-                        <div className="text-base font-semibold text-gray-900">
-                            RM {totalRenovation.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
-                    </div>
-
-                    {/* Enabled Add-on Packages Total */}
-                    {enabledAddOnTotal > 0 && (
-                        <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                            <div className="text-base font-semibold text-gray-900">Total Enabled Add-on Packages:</div>
-                            <div className="text-base font-semibold text-gray-900">
-                                RM {enabledAddOnTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Discount */}
-                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <div className="text-lg font-extrabold text-green-800">Discount:</div>
-                        <div className="text-lg font-extrabold text-green-800">
-                            - RM {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
-                    </div>
-
-                    {/* Total Quotation Amount */}
-                    <div className="flex justify-between items-center pb-3 border-b-2 border-gray-300">
-                        <div className="text-base font-semibold text-gray-900">Total Quotation Amount:</div>
-                        <div className="text-base font-semibold text-gray-900">
-                            RM {totalQuotationAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
-                    </div>
-
-                    {/* Payment Terms */}
-                    <div className="flex justify-between items-start pb-3 border-b border-gray-200">
-                        <div>
-                            <div className="text-base font-semibold text-gray-900 mb-1">Payment Terms:</div>
-                            <div className="flex items-center text-xs text-gray-500">
-                                <span>(Terms & Conditions)</span>
-                                <button
-                                    onClick={() => setShowTermsModal(true)}
-                                    className="ml-1"
-                                >
-                                    <svg
-                                        className="w-4 h-4 text-yellow-500"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div className="text-base font-semibold text-gray-900">RenoNow PayLater</div>
-                    </div>
-
-                    {/* Initial Down Payment */}
-                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <div className="text-base font-semibold text-gray-900">Initial Down Payment:</div>
-                        <div className="text-base font-semibold text-gray-900">
-                            RM {initialDownPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
-                    </div>
-
-                    {/* Balance Payment */}
-                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <div className="text-base font-semibold text-gray-900">Balance Payment:</div>
-                        <div className="text-base font-semibold text-gray-900">
-                            RM {balancePayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
-                    </div>
-                    <div className="text-sm text-gray-600 -mt-3 text-right">Pay through RPM</div>
-
-                    {/* Enabled Optional Packages */}
-                    {enabledOptionalPackages.length > 0 && (
-                        <div className="pt-3">
-                            <h3 className="text-base font-semibold text-gray-900 mb-3">Enabled Add-on Packages:</h3>
-                            <div className="space-y-3">
-                                {enabledOptionalPackages.map((pkg) => {
-                                    // Calculate price based on package name
-                                    let packagePrice = 0;
-                                    if (pkg.name && pkg.name.includes('ROI-MAX')) {
-                                        packagePrice = 8750.00 * (pkg.quantity || 1);
-                                    } else if (pkg.name && pkg.name.includes('Air Conditioning')) {
-                                        packagePrice = 1575.00 * (pkg.quantity || 1);
-                                    } else {
-                                        packagePrice = parseFloat(pkg.price || pkg.amount || 0) * (pkg.quantity || 1);
-                                    }
-                                    
-                                    return (
-                                        <div key={pkg.id} className="bg-gray-50 rounded-lg p-3 border-2 border-[#d81e43]">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex-1">
-                                                    <div className="text-sm font-semibold text-gray-900">{pkg.name}</div>
-                                                    {pkg.description && (
-                                                        <div className="text-xs text-gray-600 mt-1">{pkg.description}</div>
-                                                    )}
-                                                </div>
-                                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded ml-2">
-                                                    x{pkg.quantity}
-                                                </span>
-                                            </div>
-                                            <div className="text-sm text-gray-700">
-                                                RM {packagePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </BottomSheet>
 
             {/* Terms & Conditions Modal */}
             <Modal show={showTermsModal} onClose={() => setShowTermsModal(false)} maxWidth="2xl">
@@ -904,9 +915,17 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
                 onClose={() => setSelectedPackage(null)}
                 title={selectedPackage ? selectedPackage.name : 'Package Details'}
                 lockScroll={false}
+                contentKey={selectedPackage ? selectedPackage.id : null}
             >
                 {selectedPackage && renderPackageTable(selectedPackage)}
             </BottomSheet>
+
+            {/* Snackbar */}
+            <Snackbar
+                message={snackbarMessage}
+                show={showSnackbar}
+                onClose={() => setShowSnackbar(false)}
+            />
         </>
     );
 }

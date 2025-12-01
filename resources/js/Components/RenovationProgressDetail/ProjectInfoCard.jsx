@@ -5,8 +5,12 @@ export default function ProjectInfoCard({ project, isExpanded, onToggle }) {
 
     return (
         <div 
-            className="bg-white rounded-3xl pt-2 pl-2 pr-4"
+            className="bg-white rounded-3xl"
             style={{
+                paddingTop: '1rem',
+                paddingBottom: '1rem',
+                paddingLeft: '1rem',
+                paddingRight: '1rem',
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)',
                 border: '1px solid rgba(0, 0, 0, 0.08)',
             }}

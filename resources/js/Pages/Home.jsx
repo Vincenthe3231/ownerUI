@@ -141,9 +141,7 @@ export default function Home() {
                 <div className="mx-auto flex w-full max-w-md flex-col gap-4 sm:gap-6 px-3 sm:px-4 pt-4 sm:pt-6">
                     {/* Logo */}
                     <div className="flex items-center mb-6">
-                        <div className="flex items-center">
-                            <ApplicationLogo className="h-8 w-auto mr-2" />
-                        </div>
+                        <ApplicationLogo className="h-8 w-auto" />
                     </div>
 
                     <section className="space-y-3">

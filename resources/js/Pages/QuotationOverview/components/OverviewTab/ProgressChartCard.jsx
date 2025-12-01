@@ -1,4 +1,6 @@
 import { Link } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { BarChart3 } from 'lucide-react';
 import { getGlossyChipStyle } from '../../utils/getGlossyChipStyle';
 
 export default function ProgressChartCard({ 
@@ -9,30 +11,77 @@ export default function ProgressChartCard({
     circularProgress, 
     animatedPercentage 
 }) {
+    // Animated counter values
+    const [animatedTotal, setAnimatedTotal] = useState(0);
+    const [animatedPaid, setAnimatedPaid] = useState(0);
+    const [animatedOverdue, setAnimatedOverdue] = useState(0);
+    
+    // Animation duration in milliseconds
+    const ANIMATION_DURATION = 1500;
+    
+    // Counter animation function
+    useEffect(() => {
+        const animateValue = (start, end, setter, delay = 0) => {
+            const startTime = Date.now() + delay;
+            const duration = ANIMATION_DURATION;
+            
+            const animate = () => {
+                const now = Date.now();
+                const elapsed = now - startTime;
+                
+                if (elapsed < 0) {
+                    requestAnimationFrame(animate);
+                    return;
+                }
+                
+                if (elapsed >= duration) {
+                    setter(end);
+                    return;
+                }
+                
+                const progress = elapsed / duration;
+                // Easing function (ease-out)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (end - start) * easeOut);
+                setter(current);
+                
+                requestAnimationFrame(animate);
+            };
+            
+            animate();
+        };
+        
+        if (totalInvoices > 0) {
+            animateValue(0, totalInvoices, setAnimatedTotal, 0);
+        }
+        if (paidInvoices > 0) {
+            animateValue(0, paidInvoices, setAnimatedPaid, 200);
+        }
+        if (overdueInvoices > 0) {
+            animateValue(0, overdueInvoices, setAnimatedOverdue, 400);
+        }
+    }, [totalInvoices, paidInvoices, overdueInvoices]);
     return (
         <div 
-            className="rounded-2xl hover:scale-[1.02]"
+            className="rounded-2xl hover:scale-[1.02] relative p-6"
             style={{
-                background: 'rgba(255, 255, 255, 0.7)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.5)',
-                boxShadow: `
-                    0 8px 32px rgba(0, 0, 0, 0.08),
-                    0 4px 16px rgba(0, 0, 0, 0.06),
-                    0 2px 8px rgba(0, 0, 0, 0.04),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-                    inset 0 -1px 0 rgba(0, 0, 0, 0.05)
-                `,
+                background: 'linear-gradient(135deg, rgba(245, 131, 61, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%)',
+                boxShadow: '0 8px 20px -5px rgba(245, 131, 61, 0.25), 0 4px 6px -2px rgba(245, 131, 61, 0.1)',
+                backdropFilter: 'blur(10px)',
                 transformOrigin: 'center',
                 transition: 'transform 0.15s ease-out',
                 transitionDelay: '0s',
             }}
         >
+            {/* Status Label - Top Left */}
+            <div className="absolute top-4 left-4">
+                <span className="text-sm font-semibold text-gray-900">Status</span>
+            </div>
+            
             {/* Progress Chart Section Card */}
-            <div className="px-4 py-6 flex flex-col items-center">
-                {/* Circular Progress Indicator with Segments */}
-                <div className="relative mb-6" style={{ width: '140px', height: '140px' }}>
+            <div className="pt-8 flex flex-row items-center gap-6">
+                {/* Circular Progress Indicator with Segments - Left Side */}
+                <div className="relative flex-shrink-0" style={{ width: '140px', height: '140px' }}>
                     <svg width="140" height="140" viewBox="0 0 140 140" className="transform -rotate-90">
                         <g transform="translate(70, 70)">
                             {Array.from({ length: 100 }).map((_, index) => {
@@ -59,7 +108,7 @@ export default function ProgressChartCard({
                                     <path
                                         key={index}
                                         d={`M ${x1} ${y1} L ${x2} ${y2} A ${radius} ${radius} 0 ${largeArc} 1 ${x3} ${y3} L ${x4} ${y4} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x1} ${y1} Z`}
-                                        fill={isFilled ? '#22c55e' : '#e5e7eb'}
+                                        fill={isFilled ? '#d81e43' : '#e5e7eb'}
                                         style={{
                                             transition: 'fill 0.1s ease-out',
                                             transitionDelay: `${index * 0.01}s`,
@@ -82,73 +131,78 @@ export default function ProgressChartCard({
                     </div>
                 </div>
 
-                {/* Status Chips - Centered */}
-                <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+                {/* Status Metrics - Right Side */}
+                <div className="flex-1 flex flex-col gap-3">
                     {totalInvoices > 0 && (
-                        <span 
-                            className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden"
+                        <div 
+                            className="flex flex-col p-4 rounded-lg"
                             style={{
-                                ...getGlossyChipStyle('gray'),
-                                textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.25)',
+                                backdropFilter: 'blur(20px) saturate(180%)',
+                                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                                border: '1px solid rgba(255, 255, 255, 0.3)',
+                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+                                animation: 'slideInRight 0.6s ease-out',
+                                transform: 'translateX(0)',
+                                opacity: 1,
                             }}
                         >
-                            <div 
-                                className="absolute inset-0 pointer-events-none"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
-                                    borderRadius: '9999px',
-                                }}
-                            />
-                            <span className="relative z-10">Total: {totalInvoices}</span>
-                        </span>
+                            <span className="text-2xl font-bold text-gray-900">{animatedTotal}</span>
+                            <span className="text-sm text-gray-600">Total</span>
+                        </div>
                     )}
                     {paidInvoices > 0 && (
-                        <span 
-                            className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden"
+                        <div 
+                            className="flex flex-col p-4 rounded-lg"
                             style={{
-                                ...getGlossyChipStyle('green'),
-                                textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.25)',
+                                backdropFilter: 'blur(20px) saturate(180%)',
+                                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                                border: '1px solid rgba(255, 255, 255, 0.3)',
+                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+                                animation: 'slideInRight 0.6s ease-out 0.2s both',
+                                transform: 'translateX(0)',
+                                opacity: 1,
                             }}
                         >
-                            <div 
-                                className="absolute inset-0 pointer-events-none"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
-                                    borderRadius: '9999px',
-                                }}
-                            />
-                            <span className="relative z-10">Paid: {paidInvoices}</span>
-                        </span>
+                            <span className="text-2xl font-bold text-gray-900">{animatedPaid}</span>
+                            <span className="text-sm text-gray-600">Paid</span>
+                        </div>
                     )}
                     {overdueInvoices > 0 && (
-                        <span 
-                            className="px-3 py-1.5 text-xs font-semibold rounded-full relative overflow-hidden"
+                        <div 
+                            className="flex flex-col p-4 rounded-lg"
                             style={{
-                                ...getGlossyChipStyle('pink'),
-                                textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.25)',
+                                backdropFilter: 'blur(20px) saturate(180%)',
+                                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                                border: '1px solid rgba(255, 255, 255, 0.3)',
+                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+                                animation: 'slideInRight 0.6s ease-out 0.4s both',
+                                transform: 'translateX(0)',
+                                opacity: 1,
                             }}
                         >
-                            <div 
-                                className="absolute inset-0 pointer-events-none"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%)',
-                                    borderRadius: '9999px',
-                                }}
-                            />
-                            <span className="relative z-10">Overdue: {overdueInvoices}</span>
-                        </span>
+                            <span className="text-2xl font-bold text-gray-900">{animatedOverdue}</span>
+                            <span className="text-sm text-gray-600">Overdue</span>
+                        </div>
+                    )}
+                    
+                    {/* Statistic Button - Inline with Statistic Cards */}
+                    {quotation?.id && (
+                        <Link
+                            href={route('quotation.statistics', quotation.id)}
+                            className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:opacity-90 hover:scale-105 cursor-pointer shadow-md text-center flex items-center justify-center gap-2"
+                            style={{
+                                background: '#d81e43',
+                                boxShadow: '0 4px 12px rgba(216, 30, 67, 0.3), 0 2px 4px rgba(216, 30, 67, 0.2)',
+                            }}
+                        >
+                            <BarChart3 className="w-4 h-4" />
+                            Statistic
+                        </Link>
                     )}
                 </div>
-
-                {/* View Statistic Button - Centered */}
-                {quotation?.id && (
-                    <Link
-                        href={route('quotation.statistics', quotation.id)}
-                        className="px-4 py-2 text-sm font-medium text-[#e91e3d] underline rounded-lg transition-colors hover:opacity-90"
-                    >
-                        View Statistic
-                    </Link>
-                )}
             </div>
         </div>
     );

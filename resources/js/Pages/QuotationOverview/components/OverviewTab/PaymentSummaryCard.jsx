@@ -29,18 +29,15 @@ export default function PaymentSummaryCard({
                     </div>
                 </div>
 
-                {/* Installment Months Dropdown - Disabled */}
+                {/* Installment Months - Disabled Text Field */}
                 <div className="mb-4">
                     <label className="block text-xs text-gray-600 mb-1">Installment Period &#9203;</label>
-                    <select
-                        value={installmentMonths}
-                        onChange={(e) => setInstallmentMonths(Number(e.target.value))}
+                    <input
+                        type="text"
+                        value={`${installmentMonths} months`}
                         disabled
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed"
-                    >
-                        <option value={36}>36 months</option>
-                        <option value={60}>60 months</option>
-                    </select>
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
+                    />
                 </div>
 
                 {/* Monthly Payment Info */}
@@ -90,33 +87,31 @@ export default function PaymentSummaryCard({
 
             {/* Expandable Payment Details */}
             <div className={`expandable-content ${isExpanded ? 'expanded' : ''}`}>
-                <div className="px-4 pb-4 space-y-3 border-t border-gray-100">
+                <div className="px-4 pb-4 pt-3 border-t border-gray-100">
                     {/* Total Renovation */}
-                    <div className="flex justify-between items-center pt-3">
-                        <div className="text-sm text-gray-600">Total Renovation</div>
-                        <div className="text-sm font-semibold text-gray-900">RM {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div className="flex justify-between items-center pb-1" style={{ lineHeight: '1.3' }}>
+                        <div className="text-xs text-gray-700">Total Renovation:</div>
+                        <div className="text-xs font-bold text-gray-900">RM {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
 
-                    <div className="border-t border-gray-200"></div>
-
                     {/* Total Quotation Amount */}
-                    <div className="flex justify-between items-center">
-                        <div className="text-sm font-semibold text-gray-900">Total Quotation Amount:</div>
-                        <div className="text-sm font-semibold text-gray-900">RM {totalAmount.toLocaleString()}</div>
+                    <div className="flex justify-between items-center pt-1 pb-1" style={{ lineHeight: '1.3' }}>
+                        <div className="text-xs text-gray-700">Total Quotation Amount:</div>
+                        <div className="text-xs font-bold text-gray-900">RM {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
 
                     {/* Payment Terms */}
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-start pt-1 pb-1" style={{ lineHeight: '1.3' }}>
                         <div>
-                            <div className="text-sm font-semibold text-gray-900 mb-1">Payment Terms:</div>
-                            <div className="flex items-center text-xs text-gray-500">
+                            <div className="text-xs text-gray-700">Payment Terms:</div>
+                            <div className="flex items-center text-xs text-gray-500 mt-0.5">
                                 <span>(Terms & Conditions)</span>
                                 <button
                                     onClick={onShowTermsModal}
                                     className="ml-1"
                                 >
                                     <svg
-                                        className="w-4 h-4 text-yellow-500"
+                                        className="w-3 h-3 text-yellow-500"
                                         fill="currentColor"
                                         viewBox="0 0 20 20"
                                     >
@@ -129,21 +124,19 @@ export default function PaymentSummaryCard({
                                 </button>
                             </div>
                         </div>
-                        <div className="text-sm font-semibold text-gray-900">Full Payment</div>
+                        <div className="text-xs text-gray-700 text-right">Full Payment</div>
                     </div>
 
-                    <div className="border-t border-gray-200"></div>
-
                     {/* Initial Down Payment */}
-                    <div className="flex justify-between items-center">
-                        <div className="text-sm font-semibold text-gray-900">Initial Down Payment:</div>
-                        <div className="text-sm font-semibold text-gray-900">RM {initialDownPayment.toLocaleString()}</div>
+                    <div className="flex justify-between items-center pt-1 pb-1" style={{ lineHeight: '1.3' }}>
+                        <div className="text-xs text-gray-700">Initial Down Payment:</div>
+                        <div className="text-xs font-bold text-gray-900">RM {initialDownPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
 
                     {/* Balance Payment */}
-                    <div className="flex justify-between items-center">
-                        <div className="text-sm font-semibold text-gray-900">Balance Payment:</div>
-                        <div className="text-sm font-semibold text-gray-900">RM {balancePayment.toLocaleString()}</div>
+                    <div className="flex justify-between items-center pt-1" style={{ lineHeight: '1.3' }}>
+                        <div className="text-xs text-gray-700">Balance Payment:</div>
+                        <div className="text-xs font-bold text-gray-900">RM {balancePayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
                 </div>
             </div>

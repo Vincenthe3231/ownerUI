@@ -2,7 +2,21 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { normalizeStatus } from '../utils/statusHelpers';
 import { STATUS_ORDER, FILTER_CHIPS_CONFIG } from '../utils/constants';
+import { getItemStatusKey } from './utils';
 
+/**
+ * Hook for managing item statuses in the renovation progress detail page.
+ * 
+ * Provides functionality to:
+ * - Get the current status of an item
+ * - Change item status (next/previous in status order)
+ * - Track blinking animations for status changes
+ * 
+ * @param {Object} project - The project object
+ * @param {string} activeTab - The currently active tab
+ * @param {string} activeFilter - The currently active filter
+ * @returns {Object} Object containing getItemStatus, changeItemStatus, and isItemBlinking functions
+ */
 export function useItemStatus(project, activeTab, activeFilter) {
     const [itemStatuses, setItemStatuses] = useState({});
     const [blinkingItems, setBlinkingItems] = useState(new Set());
@@ -10,35 +24,46 @@ export function useItemStatus(project, activeTab, activeFilter) {
     // Check if the active tab uses filters
     const hasFilters = FILTER_CHIPS_CONFIG[activeTab] && FILTER_CHIPS_CONFIG[activeTab].length > 0;
 
+    /**
+     * Get the current status of an item
+     * @param {Object} item - The item object
+     * @param {number} index - The index of the item
+     * @returns {string} The normalized status
+     */
     const getItemStatus = (item, index) => {
-        // Include filter in key for tabs with filters to track each variant separately
-        const itemKey = hasFilters 
-            ? `${item.name}-${activeTab}-${activeFilter}-${index}`
-            : `${item.name}-${activeTab}-${index}`;
+        const itemKey = getItemStatusKey(item, index, activeTab, activeFilter, hasFilters);
+        
         if (itemStatuses[itemKey]) {
             return itemStatuses[itemKey];
         }
+        
         // For tabs with filters (room, bath), use the filter property
         // For tabs without filters (dining, kitchen, electrical, living), use status property
         const rawStatus = hasFilters ? item[activeFilter] : item.status;
         return normalizeStatus(rawStatus);
     };
 
+    /**
+     * Change the status of an item
+     * @param {Object} item - The item object
+     * @param {number} index - The index of the item
+     * @param {string} direction - 'next' to move to next status, 'previous' to move to previous status
+     */
     const changeItemStatus = (item, index, direction) => {
-        // Include filter in key for tabs with filters to track each variant separately
-        const itemKey = hasFilters 
-            ? `${item.name}-${activeTab}-${activeFilter}-${index}`
-            : `${item.name}-${activeTab}-${index}`;
+        const itemKey = getItemStatusKey(item, index, activeTab, activeFilter, hasFilters);
         const currentStatus = getItemStatus(item, index);
         const currentIndex = STATUS_ORDER.indexOf(currentStatus);
         
         let newIndex;
-        if (direction === 'left') {
-            // Swipe left - next status
+        if (direction === 'next') {
+            // Move to next status
             newIndex = currentIndex < STATUS_ORDER.length - 1 ? currentIndex + 1 : 0;
-        } else {
-            // Swipe right - previous status
+        } else if (direction === 'previous') {
+            // Move to previous status
             newIndex = currentIndex > 0 ? currentIndex - 1 : STATUS_ORDER.length - 1;
+        } else {
+            // Invalid direction, return early
+            return;
         }
         
         const newStatus = STATUS_ORDER[newIndex];
@@ -87,10 +112,14 @@ export function useItemStatus(project, activeTab, activeFilter) {
         }
     };
 
+    /**
+     * Check if an item is currently blinking (status change animation)
+     * @param {Object} item - The item object
+     * @param {number} index - The index of the item
+     * @returns {boolean} True if the item is blinking
+     */
     const isItemBlinking = (item, index) => {
-        const itemKey = hasFilters 
-            ? `${item.name}-${activeTab}-${activeFilter}-${index}`
-            : `${item.name}-${activeTab}-${index}`;
+        const itemKey = getItemStatusKey(item, index, activeTab, activeFilter, hasFilters);
         return blinkingItems.has(itemKey);
     };
 

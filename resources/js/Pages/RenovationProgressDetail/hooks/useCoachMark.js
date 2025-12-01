@@ -14,7 +14,7 @@ export function useCoachMark() {
     };
 
     const nextSlide = () => {
-        if (coachMarkSlide < 2) {
+        if (coachMarkSlide < 3) {
             setCoachMarkSlide(coachMarkSlide + 1);
         } else {
             closeCoachMark();

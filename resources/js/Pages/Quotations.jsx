@@ -12,9 +12,7 @@ export default function Quotations({ quotations = [] }) {
                 <div className="bg-white px-4 py-6">
                     {/* Logo */}
                     <div className="flex items-center mb-6">
-                        <div className="flex items-center">
-                            <ApplicationLogo className="h-8 w-auto mr-2" />
-                        </div>
+                        <ApplicationLogo className="h-8 w-auto" />
                     </div>
 
                     {/* Page Title */}

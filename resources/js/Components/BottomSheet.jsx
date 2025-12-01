@@ -4,6 +4,7 @@ import {
     TransitionChild,
 } from '@headlessui/react';
 import { X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { useBodyScrollLock } from './BottomSheet/useBodyScrollLock';
 import { useSwipeDown } from './BottomSheet/useSwipeDown';
 import { BOTTOM_SHEET_CONFIG } from './BottomSheet/constants';
@@ -14,6 +15,7 @@ export default function BottomSheet({
     title = '',
     children,
     lockScroll = true,
+    contentKey = null, // Key to track content changes for animation
 }) {
     // Lock body scroll when sheet is open
     useBodyScrollLock(show && lockScroll);
@@ -24,41 +26,75 @@ export default function BottomSheet({
         BOTTOM_SHEET_CONFIG.DRAG_THRESHOLD
     );
 
+    // Content transition animation
+    const [contentSlideOffset, setContentSlideOffset] = useState(0);
+    const [isContentTransitioning, setIsContentTransitioning] = useState(false);
+    const prevContentKeyRef = useRef(contentKey);
+    const prevShowRef = useRef(show);
+
+    useEffect(() => {
+        // Animate when content changes while sheet is open
+        if (show && contentKey !== null && prevContentKeyRef.current !== null && prevContentKeyRef.current !== contentKey) {
+            setIsContentTransitioning(true);
+            setContentSlideOffset(100); // New content starts from right
+            
+            requestAnimationFrame(() => {
+                setContentSlideOffset(0); // Slide to center
+            });
+            
+            setTimeout(() => {
+                setIsContentTransitioning(false);
+            }, 300);
+        }
+        
+        // Reset animation state when sheet closes
+        if (!show && prevShowRef.current) {
+            setContentSlideOffset(0);
+            setIsContentTransitioning(false);
+        }
+        
+        prevContentKeyRef.current = contentKey;
+        prevShowRef.current = show;
+    }, [contentKey, show]);
+
     return (
-        <Transition show={show} leave="duration-300">
+        <Transition show={show}>
             <Dialog
                 as="div"
-                className="fixed inset-0 z-50"
+                className="fixed inset-0 z-50 overflow-hidden"
                 onClose={onClose}
             >
                 {/* Backdrop */}
                 <TransitionChild
-                    enter="ease-out duration-300"
+                    enter="transition-opacity ease-out duration-300"
                     enterFrom="opacity-0"
                     enterTo="opacity-100"
-                    leave="ease-in duration-300"
+                    leave="transition-opacity ease-in duration-300"
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
                     <div 
-                        className={`fixed inset-0 ${BOTTOM_SHEET_CONFIG.BACKDROP_OPACITY}`}
+                        className={`fixed inset-0 ${BOTTOM_SHEET_CONFIG.BACKDROP_OPACITY} transition-opacity`}
                         onClick={onClose}
                     />
                 </TransitionChild>
 
                 {/* Bottom Sheet */}
                 <TransitionChild
-                    enter="ease-out duration-400"
-                    enterFrom="translate-y-full opacity-0"
-                    enterTo="translate-y-0 opacity-100"
-                    leave="ease-in duration-300"
-                    leaveFrom="translate-y-0 opacity-100"
-                    leaveTo="translate-y-full opacity-0"
+                    enter="transition-transform ease-out duration-300"
+                    enterFrom="translate-y-full"
+                    enterTo="translate-y-0"
+                    leave="transition-transform ease-in duration-250"
+                    leaveFrom="translate-y-0"
+                    leaveTo="translate-y-full"
                 >
                     <Dialog.Panel
                         className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl flex flex-col"
                         style={{ 
-                            transform: dragTransform,
+                            ...(dragTransform ? { 
+                                transform: dragTransform,
+                                transition: 'none'
+                            } : {}),
                             maxHeight: BOTTOM_SHEET_CONFIG.MAX_HEIGHT,
                         }}
                     >
@@ -96,8 +132,27 @@ export default function BottomSheet({
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-y-auto">
-                            {children}
+                        <div className="flex-1 overflow-y-auto relative">
+                            <div
+                                key={contentKey || 'default'}
+                                style={{
+                                    ...(isContentTransitioning ? {
+                                        transform: `translate3d(${contentSlideOffset}%, 0, 0)`,
+                                        transition: 'transform 0.3s ease-in-out',
+                                        opacity: contentSlideOffset !== 0 ? 0.7 : 1,
+                                        willChange: 'transform',
+                                    } : {
+                                        transform: 'translate3d(0, 0, 0)',
+                                        transition: 'none',
+                                        opacity: 1,
+                                        willChange: 'auto',
+                                    }),
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
+                                {children}
+                            </div>
                         </div>
                     </Dialog.Panel>
                 </TransitionChild>
