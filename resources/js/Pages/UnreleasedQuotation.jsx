@@ -101,16 +101,16 @@ export default function UnreleasedQuotation({ quotation, invoices = [], packages
     
     const handleSwipeLeft = () => {
         const currentIndex = getCurrentTabIndex();
-        if (currentIndex < tabs.length - 1) {
-            switchToTab(tabs[currentIndex + 1].id, 'left');
-        }
+        // Circular navigation: if at last tab, loop to first tab
+        const nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
+        switchToTab(tabs[nextIndex].id, 'left');
     };
     
     const handleSwipeRight = () => {
         const currentIndex = getCurrentTabIndex();
-        if (currentIndex > 0) {
-            switchToTab(tabs[currentIndex - 1].id, 'right');
-        }
+        // Circular navigation: if at first tab, loop to last tab
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
+        switchToTab(tabs[prevIndex].id, 'right');
     };
     
     // Swipe gesture handlers

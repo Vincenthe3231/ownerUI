@@ -27,16 +27,16 @@ export function useTabSwipe(activeTab, switchToTab, isTransitioning, contentSect
 
     const handleSwipeLeft = () => {
         const currentIndex = getCurrentTabIndex();
-        if (currentIndex < TABS.length - 1) {
-            switchToTab(TABS[currentIndex + 1].id, 'left');
-        }
+        // Circular navigation: if at last tab, loop to first tab
+        const nextIndex = currentIndex < TABS.length - 1 ? currentIndex + 1 : 0;
+        switchToTab(TABS[nextIndex].id, 'left');
     };
 
     const handleSwipeRight = () => {
         const currentIndex = getCurrentTabIndex();
-        if (currentIndex > 0) {
-            switchToTab(TABS[currentIndex - 1].id, 'right');
-        }
+        // Circular navigation: if at first tab, loop to last tab
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : TABS.length - 1;
+        switchToTab(TABS[prevIndex].id, 'right');
     };
 
     const handleTouchStart = (e) => {

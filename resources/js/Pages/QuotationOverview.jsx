@@ -205,6 +205,7 @@ export default function QuotationOverview({ quotation, invoices = [], packages =
                                         overdueInvoices={invoiceStats.overdueInvoices}
                                         circularProgress={circularProgress}
                                         animatedPercentage={animatedPercentage}
+                                        invoices={invoices}
                                     />
 
                                     <QuoteDetailsCard

@@ -179,7 +179,7 @@ export default function RenovationProgressDetail({ project, loading = false, pro
         handleTouchMove: handleFilterTouchMove, 
         handleTouchEnd: handleFilterTouchEnd 
     } = useFilterSwipe(
-        contentSectionRef, filterChips, activeFilter, handleFilterChange
+        contentSectionRef, filterChips, activeFilter, handleFilterChange, activeTab, switchToTab
     );
     
     // Combine touch handlers - track touch position to determine if it's inside or outside content

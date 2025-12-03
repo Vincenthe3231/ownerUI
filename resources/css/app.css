@@ -383,3 +383,12 @@
         opacity: 1;
     }
 }
+
+/* Status card hover effect - scales up by 1.05 */
+.status-card {
+    will-change: transform;
+}
+
+.status-card:hover {
+    transform: translateX(0) scale(1.05) !important;
+}

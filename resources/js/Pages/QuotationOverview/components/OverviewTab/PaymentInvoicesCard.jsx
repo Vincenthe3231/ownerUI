@@ -241,13 +241,18 @@ export default function PaymentInvoicesCard({
                 <div className="border-t border-gray-100">
                     {/* Filter Chips - Sticky */}
                     <div 
-                        className="flex flex-wrap gap-2 px-4 pt-3 pb-2 sticky z-20"
+                        className="flex flex-wrap gap-2 px-4 pt-3 pb-2 z-20"
                         style={{
-                            top: 'calc(var(--app-bar-height, 3.5rem) + 4.0rem)',
+                            position: isExpanded ? 'sticky' : 'relative',
+                            top: isExpanded ? 'calc(var(--app-bar-height, 3.5rem) + 4.0rem)' : 'auto',
                             isolation: 'isolate',
                             backgroundColor: 'rgba(255, 255, 255, 0.98)',
                             backdropFilter: 'blur(12px)',
                             WebkitBackdropFilter: 'blur(12px)',
+                            opacity: isExpanded ? 1 : 0,
+                            maxHeight: isExpanded ? 'none' : '0',
+                            overflow: isExpanded ? 'visible' : 'hidden',
+                            transition: 'opacity 0.3s ease-in-out, max-height 0.4s ease-in-out',
                         }}
                     >
                         <button
